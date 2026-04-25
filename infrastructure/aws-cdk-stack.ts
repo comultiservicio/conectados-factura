@@ -13,6 +13,7 @@ import * as sns from 'aws-cdk-lib/aws-sns';
 import * as subscriptions from 'aws-cdk-lib/aws-sns-subscriptions';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import { RemovalPolicy } from 'aws-cdk-lib';
+import { CloudWatchAlarms } from './cloudwatch-alarms';
 
 export class ConectadosFacturaStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -40,11 +41,17 @@ export class ConectadosFacturaStack extends cdk.Stack {
     // === DynamoDB Tables ===
     const syncTable = new dynamodb.Table(this, 'SyncTable', {
       tableName: 'conectados-sync',
-      partitionKey: { name: 'userId', type: dynamodb.AttributeType.STRING },
-      sortKey: { name: 'timestamp', type: dynamodb.AttributeType.STRING },
+      partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       removalPolicy: RemovalPolicy.DESTROY,
       timeToLiveAttribute: 'ttl',
+      globalSecondaryIndexes: [
+        {
+          indexName: 'ByStatus',
+          partitionKey: { name: 'status', type: dynamodb.AttributeType.STRING },
+          billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+        },
+      ],
     });
 
     const sessionsTable = new dynamodb.Table(this, 'SessionsTable', {
@@ -63,6 +70,107 @@ export class ConectadosFacturaStack extends cdk.Stack {
       removalPolicy: RemovalPolicy.DESTROY,
     });
 
+    // Additional DynamoDB tables for handlers
+    const paymentsTable = new dynamodb.Table(this, 'PaymentsTable', {
+      tableName: 'conectados-payments',
+      partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: RemovalPolicy.DESTROY,
+      globalSecondaryIndexes: [
+        {
+          indexName: 'ByUserId',
+          partitionKey: { name: 'userId', type: dynamodb.AttributeType.STRING },
+          billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+        },
+        {
+          indexName: 'ByInvoiceId',
+          partitionKey: { name: 'invoiceId', type: dynamodb.AttributeType.STRING },
+          billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+        },
+      ],
+    });
+
+    const stockMovementsTable = new dynamodb.Table(this, 'StockMovementsTable', {
+      tableName: 'conectados-stock-movements',
+      partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: RemovalPolicy.DESTROY,
+      globalSecondaryIndexes: [
+        {
+          indexName: 'ByProductWarehouse',
+          partitionKey: { name: 'productId', type: dynamodb.AttributeType.STRING },
+          sortKey: { name: 'warehouseId', type: dynamodb.AttributeType.STRING },
+          billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+        },
+        {
+          indexName: 'ByUserId',
+          partitionKey: { name: 'userId', type: dynamodb.AttributeType.STRING },
+          billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+        },
+      ],
+    });
+
+    const invoicesTable = new dynamodb.Table(this, 'InvoicesTable', {
+      tableName: 'conectados-invoices',
+      partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: RemovalPolicy.DESTROY,
+      globalSecondaryIndexes: [
+        {
+          indexName: 'ByUserId',
+          partitionKey: { name: 'userId', type: dynamodb.AttributeType.STRING },
+          billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+        },
+        {
+          indexName: 'ByCustomerId',
+          partitionKey: { name: 'customerId', type: dynamodb.AttributeType.STRING },
+          billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+        },
+      ],
+    });
+
+    const productsTable = new dynamodb.Table(this, 'ProductsTable', {
+      tableName: 'conectados-products',
+      partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: RemovalPolicy.DESTROY,
+    });
+
+    const warehousesTable = new dynamodb.Table(this, 'WarehousesTable', {
+      tableName: 'conectados-warehouses',
+      partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: RemovalPolicy.DESTROY,
+    });
+
+    const documentsTable = new dynamodb.Table(this, 'DocumentsTable', {
+      tableName: 'conectados-documents',
+      partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: RemovalPolicy.DESTROY,
+      globalSecondaryIndexes: [
+        {
+          indexName: 'ByUserId',
+          partitionKey: { name: 'userId', type: dynamodb.AttributeType.STRING },
+          billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+        },
+      ],
+    });
+
+    const ocrResultsTable = new dynamodb.Table(this, 'OCRResultsTable', {
+      tableName: 'conectados-ocr-results',
+      partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: RemovalPolicy.DESTROY,
+      globalSecondaryIndexes: [
+        {
+          indexName: 'ByDocumentId',
+          partitionKey: { name: 'documentId', type: dynamodb.AttributeType.STRING },
+          billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+        },
+      ],
+    });
+
     // === RDS PostgreSQL ===
     const dbSecret = new secretsmanager.Secret(this, 'DatabaseSecret', {
       secretName: 'conectados-factura-db-secret',
@@ -76,8 +184,27 @@ export class ConectadosFacturaStack extends cdk.Stack {
       },
     });
 
+    // Create a new VPC for the infrastructure
+    const vpc = new cdk.aws_ec2.Vpc(this, 'ConectadosVPC', {
+      cidr: '10.0.0.0/16',
+      maxAzs: 2,
+      natGateways: 1,
+      subnetConfiguration: [
+        {
+          cidrMask: 24,
+          name: 'public',
+          subnetType: cdk.aws_ec2.SubnetType.PUBLIC,
+        },
+        {
+          cidrMask: 24,
+          name: 'private',
+          subnetType: cdk.aws_ec2.SubnetType.PRIVATE_WITH_EGRESS,
+        },
+      ],
+    });
+
     const dbSecurityGroup = new cdk.aws_ec2.SecurityGroup(this, 'DatabaseSecurityGroup', {
-      vpc: cdk.aws_ec2.Vpc.fromLookup(this, 'VPC', { vpcId: 'vpc-xxxxxxxx' }),
+      vpc: vpc,
       allowAllOutbound: false,
       description: 'Security group for RDS PostgreSQL',
     });
@@ -88,7 +215,7 @@ export class ConectadosFacturaStack extends cdk.Stack {
         version: rds.PostgresEngineVersion.VER_15_4,
       }),
       instanceType: cdk.aws_ec2.InstanceType.of(cdk.aws_ec2.InstanceClass.BURSTABLE3, cdk.aws_ec2.InstanceSize.MICRO),
-      vpc: cdk.aws_ec2.Vpc.fromLookup(this, 'VPC', { vpcId: 'vpc-xxxxxxxx' }),
+      vpc: vpc,
       securityGroups: [dbSecurityGroup],
       credentials: rds.Credentials.fromSecret(dbSecret),
       databaseName: 'conectados_factura',
@@ -140,12 +267,26 @@ export class ConectadosFacturaStack extends cdk.Stack {
       logRetention: logs.RetentionDays.ONE_WEEK,
       environment: {
         DB_SECRET_ARN: dbSecret.secretArn,
-        SYNC_TABLE_NAME: syncTable.tableName,
-        SESSIONS_TABLE_NAME: sessionsTable.tableName,
-        QUEUE_TABLE_NAME: queueTable.tableName,
-        INVOICES_BUCKET_NAME: invoicesBucket.bucketName,
-        DOCUMENTS_BUCKET_NAME: documentsBucket.bucketName,
+        SYNC_TABLE: syncTable.tableName,
+        SESSIONS_TABLE: sessionsTable.tableName,
+        QUEUE_TABLE: queueTable.tableName,
+        PAYMENTS_TABLE: paymentsTable.tableName,
+        STOCK_MOVEMENTS_TABLE: stockMovementsTable.tableName,
+        INVOICES_TABLE: invoicesTable.tableName,
+        PRODUCTS_TABLE: productsTable.tableName,
+        WAREHOUSES_TABLE: warehousesTable.tableName,
+        DOCUMENTS_TABLE: documentsTable.tableName,
+        OCR_RESULTS_TABLE: ocrResultsTable.tableName,
+        INVOICES_BUCKET: invoicesBucket.bucketName,
+        DOCUMENTS_BUCKET: documentsBucket.bucketName,
         USER_POOL_ID: userPool.userPoolId,
+        JWT_SECRET: 'your-super-secret-jwt-key-change-in-production',
+        MERCADO_PAGO_ACCESS_TOKEN: process.env.MERCADO_PAGO_ACCESS_TOKEN || '',
+        STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY || '',
+        AFIP_CERT: process.env.AFIP_CERT || '',
+        AFIP_KEY: process.env.AFIP_KEY || '',
+        AFIP_CUIT: process.env.AFIP_CUIT || '',
+        AWS_REGION: this.region,
       },
     };
 
@@ -205,12 +346,25 @@ export class ConectadosFacturaStack extends cdk.Stack {
 
     // Grant permissions to each Lambda
     [authLambda, billingLambda, stockLambda, paymentsLambda, syncLambda, ocrLambda].forEach(fn => {
+      // Grant DynamoDB permissions
       syncTable.grantReadWriteData(fn);
       sessionsTable.grantReadWriteData(fn);
       queueTable.grantReadWriteData(fn);
+      paymentsTable.grantReadWriteData(fn);
+      stockMovementsTable.grantReadWriteData(fn);
+      invoicesTable.grantReadWriteData(fn);
+      productsTable.grantReadWriteData(fn);
+      warehousesTable.grantReadWriteData(fn);
+      documentsTable.grantReadWriteData(fn);
+      ocrResultsTable.grantReadWriteData(fn);
+      
+      // Grant S3 permissions
       invoicesBucket.grantReadWrite(fn);
       documentsBucket.grantReadWrite(fn);
+      
+      // Grant Secrets Manager permissions
       dbSecret.grantRead(fn);
+      
       fn.role!.attachInlinePolicy(
         new iam.Policy(this, `${fn.node.id}Policy`, {
           statements: [
@@ -232,6 +386,11 @@ export class ConectadosFacturaStack extends cdk.Stack {
             new iam.PolicyStatement({
               effect: iam.Effect.ALLOW,
               actions: ['ses:*', 'sns:*'],
+              resources: ['*'],
+            }),
+            new iam.PolicyStatement({
+              effect: iam.Effect.ALLOW,
+              actions: ['cloudwatch:*', 'logs:*'],
               resources: ['*'],
             }),
           ],
@@ -342,12 +501,12 @@ export class ConectadosFacturaStack extends cdk.Stack {
       alarmDescription: 'Too many Lambda errors',
     });
 
-    // === SNS Topics for Alerts ===
-    const alertsTopic = new sns.Topic(this, 'AlertsTopic', {
-      displayName: 'Conectados Factura+ Alerts',
+    // === CloudWatch Alarms ===
+    const alarms = new CloudWatchAlarms(this, 'CloudWatchAlarms', {
+      stockLambdaName: stockLambda.functionName,
+      billingLambdaName: billingLambda.functionName,
+      databaseIdentifier: database.instanceIdentifier,
     });
-
-    alertsTopic.addSubscription(new subscriptions.EmailSubscription('alerts@conectadosfactura.com'));
 
     // === CloudWatch Dashboard ===
     const dashboard = new cloudwatch.Dashboard(this, 'ConectadosFacturaDashboard', {
@@ -415,6 +574,56 @@ export class ConectadosFacturaStack extends cdk.Stack {
           period: cdk.Duration.minutes(5),
         })],
         width: 12,
+      }),
+      new cloudwatch.GraphWidget({
+        title: 'Stock Levels',
+        left: [new cloudwatch.Metric({
+          namespace: 'ConectadosFactura',
+          metricName: 'StockLevel',
+          dimensionsMap: {
+            LambdaFunctionName: stockLambda.functionName,
+          },
+          statistic: 'Minimum',
+          period: cdk.Duration.minutes(5),
+        })],
+        width: 12,
+      }),
+      new cloudwatch.GraphWidget({
+        title: 'AFIP Errors',
+        left: [new cloudwatch.Metric({
+          namespace: 'ConectadosFactura',
+          metricName: 'AFIPErrors',
+          dimensionsMap: {
+            LambdaFunctionName: billingLambda.functionName,
+          },
+          statistic: 'Sum',
+          period: cdk.Duration.minutes(5),
+        })],
+        width: 12,
+      }),
+      new cloudwatch.GraphWidget({
+        title: 'Sync Failures',
+        left: [new cloudwatch.Metric({
+          namespace: 'ConectadosFactura',
+          metricName: 'SyncFailures',
+          dimensionsMap: {
+            LambdaFunctionName: billingLambda.functionName,
+          },
+          statistic: 'Sum',
+          period: cdk.Duration.minutes(5),
+        })],
+        width: 12,
+      }),
+      new cloudwatch.AlarmWidget({
+        title: 'Critical Alarms',
+        alarmNames: [
+          alarms.stockCriticalAlarm.alarmName,
+          alarms.afipErrorsAlarm.alarmName,
+          alarms.syncFailuresAlarm.alarmName,
+          alarms.apiErrorsAlarm.alarmName,
+          alarms.databaseConnectionsAlarm.alarmName,
+        ],
+        width: 24,
       })
     );
 

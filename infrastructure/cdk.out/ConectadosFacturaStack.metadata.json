@@ -1,0 +1,1078 @@
+{
+  "/ConectadosFacturaStack": [
+    {
+      "type": "aws:cdk:error",
+      "data": "Need to perform AWS calls for account 123456789012, but no credentials have been configured",
+      "trace": [
+        "Annotations.addMessage (D:\\PROYECTOS\\SISTEMA DE FACTURACION\\infrastructure\\node_modules\\aws-cdk-lib\\core\\lib\\annotations.js:1:2399)",
+        "Annotations.addError (D:\\PROYECTOS\\SISTEMA DE FACTURACION\\infrastructure\\node_modules\\aws-cdk-lib\\core\\lib\\annotations.js:1:1631)",
+        "Annotations._addTrackableError (D:\\PROYECTOS\\SISTEMA DE FACTURACION\\infrastructure\\node_modules\\aws-cdk-lib\\core\\lib\\annotations.js:1:1730)",
+        "ContextProvider.getValue (D:\\PROYECTOS\\SISTEMA DE FACTURACION\\infrastructure\\node_modules\\aws-cdk-lib\\core\\lib\\context-provider.js:2:1886)",
+        "ConectadosFacturaStack.get availabilityZones [as availabilityZones] (D:\\PROYECTOS\\SISTEMA DE FACTURACION\\infrastructure\\node_modules\\aws-cdk-lib\\core\\lib\\stack.js:1:11937)",
+        "new Vpc2 (D:\\PROYECTOS\\SISTEMA DE FACTURACION\\infrastructure\\node_modules\\aws-cdk-lib\\aws-ec2\\lib\\vpc.js:1:18037)",
+        "new Vpc2 (D:\\PROYECTOS\\SISTEMA DE FACTURACION\\infrastructure\\node_modules\\aws-cdk-lib\\core\\lib\\prop-injectable.js:1:855)",
+        "new ConectadosFacturaStack (D:\\PROYECTOS\\SISTEMA DE FACTURACION\\infrastructure\\lib\\aws-cdk-stack.ts:133:17)",
+        "Object.<anonymous> (D:\\PROYECTOS\\SISTEMA DE FACTURACION\\infrastructure\\bin\\infrastructure.ts:6:1)",
+        "Module._compile (node:internal/modules/cjs/loader:1812:14)",
+        "Module.m._compile (D:\\PROYECTOS\\SISTEMA DE FACTURACION\\infrastructure\\node_modules\\ts-node\\src\\index.ts:1618:23)",
+        "node:internal/modules/cjs/loader:1943:10",
+        "Object.require.extensions.<computed> [as .ts] (D:\\PROYECTOS\\SISTEMA DE FACTURACION\\infrastructure\\node_modules\\ts-node\\src\\index.ts:1621:12)",
+        "Module.load (node:internal/modules/cjs/loader:1533:32)",
+        "Module._load (node:internal/modules/cjs/loader:1335:12)",
+        "wrapModuleLoad (node:internal/modules/cjs/loader:255:19)",
+        "Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)",
+        "phase4 (D:\\PROYECTOS\\SISTEMA DE FACTURACION\\infrastructure\\node_modules\\ts-node\\src\\bin.ts:649:14)",
+        "bootstrap (D:\\PROYECTOS\\SISTEMA DE FACTURACION\\infrastructure\\node_modules\\ts-node\\src\\bin.ts:95:10)",
+        "main (D:\\PROYECTOS\\SISTEMA DE FACTURACION\\infrastructure\\node_modules\\ts-node\\src\\bin.ts:55:10)",
+        "Object.<anonymous> (D:\\PROYECTOS\\SISTEMA DE FACTURACION\\infrastructure\\node_modules\\ts-node\\src\\bin.ts:800:3)",
+        "Module._compile (node:internal/modules/cjs/loader:1812:14)",
+        "Object.<anonymous> (node:internal/modules/cjs/loader:1943:10)",
+        "Module.load (node:internal/modules/cjs/loader:1533:32)",
+        "Module._load (node:internal/modules/cjs/loader:1335:12)",
+        "wrapModuleLoad (node:internal/modules/cjs/loader:255:19)",
+        "Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)",
+        "node:internal/main/run_main_module:33:47"
+      ]
+    },
+    {
+      "type": "aws:cdk:error-code",
+      "data": "ContextProviderError"
+    }
+  ],
+  "/ConectadosFacturaStack/Custom::S3AutoDeleteObjectsCustomResourceProvider": [
+    {
+      "type": "aws:cdk:is-custom-resource-handler-customResourceProvider",
+      "data": true
+    }
+  ],
+  "/ConectadosFacturaStack/SyncTable": [
+    {
+      "type": "aws:cdk:hasPhysicalName",
+      "data": {
+        "Ref": "SyncTable848D246E"
+      }
+    }
+  ],
+  "/ConectadosFacturaStack/SessionsTable": [
+    {
+      "type": "aws:cdk:hasPhysicalName",
+      "data": {
+        "Ref": "SessionsTable7C302024"
+      }
+    }
+  ],
+  "/ConectadosFacturaStack/QueueTable": [
+    {
+      "type": "aws:cdk:hasPhysicalName",
+      "data": {
+        "Ref": "QueueTable4C3A1E0F"
+      }
+    }
+  ],
+  "/ConectadosFacturaStack/StockMovementsTable": [
+    {
+      "type": "aws:cdk:hasPhysicalName",
+      "data": {
+        "Ref": "StockMovementsTable9F430DF2"
+      }
+    }
+  ],
+  "/ConectadosFacturaStack/ProductsTable": [
+    {
+      "type": "aws:cdk:hasPhysicalName",
+      "data": {
+        "Ref": "ProductsTable241ADBFF"
+      }
+    }
+  ],
+  "/ConectadosFacturaStack/WarehousesTable": [
+    {
+      "type": "aws:cdk:hasPhysicalName",
+      "data": {
+        "Ref": "WarehousesTableEAC387FA"
+      }
+    }
+  ],
+  "/ConectadosFacturaStack/CurrentStockTable": [
+    {
+      "type": "aws:cdk:hasPhysicalName",
+      "data": {
+        "Ref": "CurrentStockTable6B453AAD"
+      }
+    }
+  ],
+  "/ConectadosFacturaStack/InvoicesTable": [
+    {
+      "type": "aws:cdk:hasPhysicalName",
+      "data": {
+        "Ref": "InvoicesTable011644E3"
+      }
+    }
+  ],
+  "/ConectadosFacturaStack/InvoiceItemsTable": [
+    {
+      "type": "aws:cdk:hasPhysicalName",
+      "data": {
+        "Ref": "InvoiceItemsTable068BBDBC"
+      }
+    }
+  ],
+  "/ConectadosFacturaStack/PaymentsTable": [
+    {
+      "type": "aws:cdk:hasPhysicalName",
+      "data": {
+        "Ref": "PaymentsTable48A42630"
+      }
+    }
+  ],
+  "/ConectadosFacturaStack/OcrTable": [
+    {
+      "type": "aws:cdk:hasPhysicalName",
+      "data": {
+        "Ref": "OcrTable108CDB79"
+      }
+    }
+  ],
+  "/ConectadosFacturaStack/APIEndpoint": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "APIEndpoint"
+    }
+  ],
+  "/ConectadosFacturaStack/UserPoolId": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "UserPoolId"
+    }
+  ],
+  "/ConectadosFacturaStack/UserPoolClientId": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "UserPoolClientId"
+    }
+  ],
+  "/ConectadosFacturaStack/DatabaseEndpoint": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DatabaseEndpoint"
+    }
+  ],
+  "/ConectadosFacturaStack/InvoicesBucketName": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "InvoicesBucketName"
+    }
+  ],
+  "/ConectadosFacturaStack/BootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "BootstrapVersion"
+    }
+  ],
+  "/ConectadosFacturaStack/CheckBootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CheckBootstrapVersion"
+    }
+  ],
+  "/ConectadosFacturaStack/InvoicesBucket/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "InvoicesBucket57FCB164"
+    },
+    {
+      "type": "aws:cdk:analytics:mixin",
+      "data": {
+        "mixin": "aws-cdk-lib.aws_s3.mixins.BucketAutoDeleteObjects"
+      }
+    }
+  ],
+  "/ConectadosFacturaStack/Custom::S3AutoDeleteObjectsCustomResourceProvider/Role": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092"
+    }
+  ],
+  "/ConectadosFacturaStack/Custom::S3AutoDeleteObjectsCustomResourceProvider/Handler": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F"
+    }
+  ],
+  "/ConectadosFacturaStack/DocumentsBucket/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DocumentsBucket9EC9DEB9"
+    },
+    {
+      "type": "aws:cdk:analytics:mixin",
+      "data": {
+        "mixin": "aws-cdk-lib.aws_s3.mixins.BucketAutoDeleteObjects"
+      }
+    }
+  ],
+  "/ConectadosFacturaStack/SyncTable/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SyncTable848D246E"
+    }
+  ],
+  "/ConectadosFacturaStack/SessionsTable/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SessionsTable7C302024"
+    }
+  ],
+  "/ConectadosFacturaStack/QueueTable/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "QueueTable4C3A1E0F"
+    }
+  ],
+  "/ConectadosFacturaStack/StockMovementsTable/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "StockMovementsTable9F430DF2"
+    }
+  ],
+  "/ConectadosFacturaStack/ProductsTable/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ProductsTable241ADBFF"
+    }
+  ],
+  "/ConectadosFacturaStack/WarehousesTable/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "WarehousesTableEAC387FA"
+    }
+  ],
+  "/ConectadosFacturaStack/CurrentStockTable/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CurrentStockTable6B453AAD"
+    }
+  ],
+  "/ConectadosFacturaStack/InvoicesTable/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "InvoicesTable011644E3"
+    }
+  ],
+  "/ConectadosFacturaStack/InvoiceItemsTable/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "InvoiceItemsTable068BBDBC"
+    }
+  ],
+  "/ConectadosFacturaStack/PaymentsTable/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PaymentsTable48A42630"
+    }
+  ],
+  "/ConectadosFacturaStack/OcrTable/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "OcrTable108CDB79"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosVPC/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosVPC222DA076"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosVPC/IGW": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosVPCIGW8AE9E21B"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosVPC/VPCGW": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosVPCVPCGW78532155"
+    }
+  ],
+  "/ConectadosFacturaStack/DatabaseSecret/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DatabaseSecret86DBB7B3"
+    }
+  ],
+  "/ConectadosFacturaStack/DatabaseSecurityGroup/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DatabaseSecurityGroup7319C0F6"
+    }
+  ],
+  "/ConectadosFacturaStack/Database/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DatabaseB269D8BB"
+    }
+  ],
+  "/ConectadosFacturaStack/UserPool/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "UserPool6BA7E5F2"
+    }
+  ],
+  "/ConectadosFacturaStack/UserPoolClient/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "UserPoolClient2F5918F7"
+    }
+  ],
+  "/ConectadosFacturaStack/AuthLambda/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AuthLambda6BB8C88C"
+    }
+  ],
+  "/ConectadosFacturaStack/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A"
+    }
+  ],
+  "/ConectadosFacturaStack/BillingLambda/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "BillingLambdaC74DF4D2"
+    }
+  ],
+  "/ConectadosFacturaStack/StockLambda/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "StockLambda41850F3B"
+    }
+  ],
+  "/ConectadosFacturaStack/PaymentsLambda/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PaymentsLambda27AA6830"
+    }
+  ],
+  "/ConectadosFacturaStack/SyncLambda/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SyncLambda80EEFC7D"
+    }
+  ],
+  "/ConectadosFacturaStack/OcrLambda/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "OcrLambda53584FF4"
+    }
+  ],
+  "/ConectadosFacturaStack/LambdaRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "LambdaRole3A44B857"
+    }
+  ],
+  "/ConectadosFacturaStack/AuthLambdaPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AuthLambdaPolicyAEE126AE"
+    }
+  ],
+  "/ConectadosFacturaStack/BillingLambdaPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "BillingLambdaPolicy456B0288"
+    }
+  ],
+  "/ConectadosFacturaStack/StockLambdaPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "StockLambdaPolicyBF0FD46A"
+    }
+  ],
+  "/ConectadosFacturaStack/PaymentsLambdaPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PaymentsLambdaPolicy0A6F53F0"
+    }
+  ],
+  "/ConectadosFacturaStack/SyncLambdaPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SyncLambdaPolicy601CCA0F"
+    }
+  ],
+  "/ConectadosFacturaStack/OcrLambdaPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "OcrLambdaPolicyFF5DA5E2"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPI57BCB539"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Account": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIAccount8569EBA5"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Endpoint": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIEndpointB4FE15D0"
+    }
+  ],
+  "/ConectadosFacturaStack/CognitoAuthorizer/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CognitoAuthorizerF3215DBC"
+    }
+  ],
+  "/ConectadosFacturaStack/APILatencyAlarm/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "APILatencyAlarm470C1454"
+    }
+  ],
+  "/ConectadosFacturaStack/LambdaErrorAlarm/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "LambdaErrorAlarm646BFA4C"
+    }
+  ],
+  "/ConectadosFacturaStack/AlertsTopic/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AlertsTopic3414BE91"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaDashboard/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaDashboardCF55510D"
+    }
+  ],
+  "/ConectadosFacturaStack/CDKMetadata/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CDKMetadata"
+    }
+  ],
+  "/ConectadosFacturaStack/InvoicesBucket/Policy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "InvoicesBucketPolicy8F7685F0"
+    },
+    {
+      "type": "aws:cdk:analytics:mixin",
+      "data": {
+        "mixin": "aws-cdk-lib.aws_s3.mixins.BucketPolicyStatements"
+      }
+    }
+  ],
+  "/ConectadosFacturaStack/InvoicesBucket/AutoDeleteObjectsCustomResource/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "InvoicesBucketAutoDeleteObjectsCustomResource20170456"
+    }
+  ],
+  "/ConectadosFacturaStack/DocumentsBucket/Policy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DocumentsBucketPolicy1F991BD4"
+    },
+    {
+      "type": "aws:cdk:analytics:mixin",
+      "data": {
+        "mixin": "aws-cdk-lib.aws_s3.mixins.BucketPolicyStatements"
+      }
+    }
+  ],
+  "/ConectadosFacturaStack/DocumentsBucket/AutoDeleteObjectsCustomResource/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DocumentsBucketAutoDeleteObjectsCustomResourceFE3123FC"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosVPC/publicSubnet1/Subnet": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosVPCpublicSubnet1SubnetAA0751AF"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosVPC/publicSubnet1/RouteTable": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosVPCpublicSubnet1RouteTable7146A0F4"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosVPC/publicSubnet1/RouteTableAssociation": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosVPCpublicSubnet1RouteTableAssociation3AED5363"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosVPC/publicSubnet1/DefaultRoute": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosVPCpublicSubnet1DefaultRoute01EBD43D"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosVPC/publicSubnet1/EIP": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosVPCpublicSubnet1EIPA3E6457D"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosVPC/publicSubnet1/NATGateway": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosVPCpublicSubnet1NATGateway4A100DB5"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosVPC/publicSubnet2/Subnet": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosVPCpublicSubnet2SubnetE91ABF5D"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosVPC/publicSubnet2/RouteTable": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosVPCpublicSubnet2RouteTableDFE65F4C"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosVPC/publicSubnet2/RouteTableAssociation": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosVPCpublicSubnet2RouteTableAssociation921CF8E6"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosVPC/publicSubnet2/DefaultRoute": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosVPCpublicSubnet2DefaultRoute6CB397D8"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosVPC/privateSubnet1/Subnet": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosVPCprivateSubnet1Subnet3588D8C0"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosVPC/privateSubnet1/RouteTable": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosVPCprivateSubnet1RouteTable923B7429"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosVPC/privateSubnet1/RouteTableAssociation": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosVPCprivateSubnet1RouteTableAssociationDABC0546"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosVPC/privateSubnet1/DefaultRoute": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosVPCprivateSubnet1DefaultRoute007D97ED"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosVPC/privateSubnet2/Subnet": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosVPCprivateSubnet2Subnet0E459A4D"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosVPC/privateSubnet2/RouteTable": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosVPCprivateSubnet2RouteTable4A59007A"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosVPC/privateSubnet2/RouteTableAssociation": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosVPCprivateSubnet2RouteTableAssociation6CBB99C0"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosVPC/privateSubnet2/DefaultRoute": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosVPCprivateSubnet2DefaultRoute63D2B0EE"
+    }
+  ],
+  "/ConectadosFacturaStack/DatabaseSecret/Attachment/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DatabaseSecretAttachment9A63A3D4"
+    }
+  ],
+  "/ConectadosFacturaStack/Database/SubnetGroup/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DatabaseSubnetGroup7D60F180"
+    }
+  ],
+  "/ConectadosFacturaStack/AuthLambda/ServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AuthLambdaServiceRole7D6ECDEC"
+    }
+  ],
+  "/ConectadosFacturaStack/AuthLambda/LogRetention/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AuthLambdaLogRetention3C91D089"
+    }
+  ],
+  "/ConectadosFacturaStack/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB"
+    }
+  ],
+  "/ConectadosFacturaStack/BillingLambda/ServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "BillingLambdaServiceRoleB981AB85"
+    }
+  ],
+  "/ConectadosFacturaStack/BillingLambda/LogRetention/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "BillingLambdaLogRetentionC2FA5919"
+    }
+  ],
+  "/ConectadosFacturaStack/StockLambda/ServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "StockLambdaServiceRoleD6FE9E36"
+    }
+  ],
+  "/ConectadosFacturaStack/StockLambda/LogRetention/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "StockLambdaLogRetention7807B987"
+    }
+  ],
+  "/ConectadosFacturaStack/PaymentsLambda/ServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PaymentsLambdaServiceRole23F7681E"
+    }
+  ],
+  "/ConectadosFacturaStack/PaymentsLambda/LogRetention/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PaymentsLambdaLogRetention00E22953"
+    }
+  ],
+  "/ConectadosFacturaStack/SyncLambda/ServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SyncLambdaServiceRoleB2D73C3C"
+    }
+  ],
+  "/ConectadosFacturaStack/SyncLambda/LogRetention/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SyncLambdaLogRetentionB734BCBB"
+    }
+  ],
+  "/ConectadosFacturaStack/OcrLambda/ServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "OcrLambdaServiceRoleAA4FF8DD"
+    }
+  ],
+  "/ConectadosFacturaStack/OcrLambda/LogRetention/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "OcrLambdaLogRetentionA285E80B"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/CloudWatchRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPICloudWatchRoleE9EFB002"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Deployment/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIDeploymentA6711497b97e303fd6f1aec7be852400e80e1882"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/DeploymentStage.prod/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIDeploymentStageprod77C455C1"
+    }
+  ],
+  "/ConectadosFacturaStack/AlertsTopic/alerts@conectadosfactura.com/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AlertsTopicalertsconectadosfacturacom973711A9"
+    }
+  ],
+  "/ConectadosFacturaStack/AuthLambda/ServiceRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AuthLambdaServiceRoleDefaultPolicy733D72E7"
+    }
+  ],
+  "/ConectadosFacturaStack/AuthLambda/ServiceRole/OverflowPolicy1/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AuthLambdaServiceRoleOverflowPolicy10D6E6958"
+    }
+  ],
+  "/ConectadosFacturaStack/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB"
+    }
+  ],
+  "/ConectadosFacturaStack/BillingLambda/ServiceRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "BillingLambdaServiceRoleDefaultPolicy5D217417"
+    }
+  ],
+  "/ConectadosFacturaStack/BillingLambda/ServiceRole/OverflowPolicy1/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "BillingLambdaServiceRoleOverflowPolicy179A1465D"
+    }
+  ],
+  "/ConectadosFacturaStack/StockLambda/ServiceRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "StockLambdaServiceRoleDefaultPolicy36E8D956"
+    }
+  ],
+  "/ConectadosFacturaStack/StockLambda/ServiceRole/OverflowPolicy1/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "StockLambdaServiceRoleOverflowPolicy1F5B9E5E5"
+    }
+  ],
+  "/ConectadosFacturaStack/PaymentsLambda/ServiceRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PaymentsLambdaServiceRoleDefaultPolicyF6F7BEF3"
+    }
+  ],
+  "/ConectadosFacturaStack/PaymentsLambda/ServiceRole/OverflowPolicy1/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PaymentsLambdaServiceRoleOverflowPolicy17253567E"
+    }
+  ],
+  "/ConectadosFacturaStack/SyncLambda/ServiceRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SyncLambdaServiceRoleDefaultPolicyAF01A18C"
+    }
+  ],
+  "/ConectadosFacturaStack/SyncLambda/ServiceRole/OverflowPolicy1/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SyncLambdaServiceRoleOverflowPolicy155C525D4"
+    }
+  ],
+  "/ConectadosFacturaStack/OcrLambda/ServiceRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "OcrLambdaServiceRoleDefaultPolicyDC9127E5"
+    }
+  ],
+  "/ConectadosFacturaStack/OcrLambda/ServiceRole/OverflowPolicy1/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "OcrLambdaServiceRoleOverflowPolicy14A314835"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/OPTIONS/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIOPTIONS6BDC7004"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/auth/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIauth708F01D2"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/billing/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIbillingED91643F"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/stock/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIstockFB583C3C"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/payments/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIpayments00FAE14B"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/sync/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIsync6693D6EC"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/ocr/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIocr06D87232"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/auth/OPTIONS/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIauthOPTIONS52017754"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/auth/POST/ApiPermission.ConectadosFacturaStackConectadosFacturaAPI4133AF01.POST..auth": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIauthPOSTApiPermissionConectadosFacturaStackConectadosFacturaAPI4133AF01POSTauthFD1418BA"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/auth/POST/ApiPermission.Test.ConectadosFacturaStackConectadosFacturaAPI4133AF01.POST..auth": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIauthPOSTApiPermissionTestConectadosFacturaStackConectadosFacturaAPI4133AF01POSTauth15089C6C"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/auth/POST/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIauthPOSTE8489024"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/auth/GET/ApiPermission.ConectadosFacturaStackConectadosFacturaAPI4133AF01.GET..auth": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIauthGETApiPermissionConectadosFacturaStackConectadosFacturaAPI4133AF01GETauth0B4CAB66"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/auth/GET/ApiPermission.Test.ConectadosFacturaStackConectadosFacturaAPI4133AF01.GET..auth": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIauthGETApiPermissionTestConectadosFacturaStackConectadosFacturaAPI4133AF01GETauthD10C33A2"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/auth/GET/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIauthGETB71E84AE"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/billing/OPTIONS/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIbillingOPTIONS79F58573"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/billing/POST/ApiPermission.ConectadosFacturaStackConectadosFacturaAPI4133AF01.POST..billing": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIbillingPOSTApiPermissionConectadosFacturaStackConectadosFacturaAPI4133AF01POSTbilling2BDA939F"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/billing/POST/ApiPermission.Test.ConectadosFacturaStackConectadosFacturaAPI4133AF01.POST..billing": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIbillingPOSTApiPermissionTestConectadosFacturaStackConectadosFacturaAPI4133AF01POSTbillingB656A7C8"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/billing/POST/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIbillingPOST3052DD59"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/billing/GET/ApiPermission.ConectadosFacturaStackConectadosFacturaAPI4133AF01.GET..billing": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIbillingGETApiPermissionConectadosFacturaStackConectadosFacturaAPI4133AF01GETbilling1247BA3E"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/billing/GET/ApiPermission.Test.ConectadosFacturaStackConectadosFacturaAPI4133AF01.GET..billing": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIbillingGETApiPermissionTestConectadosFacturaStackConectadosFacturaAPI4133AF01GETbilling81B5EAAA"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/billing/GET/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIbillingGETEECC283E"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/stock/OPTIONS/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIstockOPTIONS8DB26E86"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/stock/POST/ApiPermission.ConectadosFacturaStackConectadosFacturaAPI4133AF01.POST..stock": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIstockPOSTApiPermissionConectadosFacturaStackConectadosFacturaAPI4133AF01POSTstockCB4D5158"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/stock/POST/ApiPermission.Test.ConectadosFacturaStackConectadosFacturaAPI4133AF01.POST..stock": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIstockPOSTApiPermissionTestConectadosFacturaStackConectadosFacturaAPI4133AF01POSTstock571D70B6"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/stock/POST/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIstockPOSTDB8FECFB"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/stock/GET/ApiPermission.ConectadosFacturaStackConectadosFacturaAPI4133AF01.GET..stock": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIstockGETApiPermissionConectadosFacturaStackConectadosFacturaAPI4133AF01GETstock187A0371"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/stock/GET/ApiPermission.Test.ConectadosFacturaStackConectadosFacturaAPI4133AF01.GET..stock": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIstockGETApiPermissionTestConectadosFacturaStackConectadosFacturaAPI4133AF01GETstockE5A3BC82"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/stock/GET/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIstockGET3B5D8D35"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/payments/OPTIONS/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIpaymentsOPTIONS9D91AEA9"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/payments/POST/ApiPermission.ConectadosFacturaStackConectadosFacturaAPI4133AF01.POST..payments": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIpaymentsPOSTApiPermissionConectadosFacturaStackConectadosFacturaAPI4133AF01POSTpaymentsD96BD179"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/payments/POST/ApiPermission.Test.ConectadosFacturaStackConectadosFacturaAPI4133AF01.POST..payments": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIpaymentsPOSTApiPermissionTestConectadosFacturaStackConectadosFacturaAPI4133AF01POSTpayments21264FDA"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/payments/POST/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIpaymentsPOST4D52A575"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/payments/GET/ApiPermission.ConectadosFacturaStackConectadosFacturaAPI4133AF01.GET..payments": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIpaymentsGETApiPermissionConectadosFacturaStackConectadosFacturaAPI4133AF01GETpaymentsDD188E38"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/payments/GET/ApiPermission.Test.ConectadosFacturaStackConectadosFacturaAPI4133AF01.GET..payments": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIpaymentsGETApiPermissionTestConectadosFacturaStackConectadosFacturaAPI4133AF01GETpaymentsEAC253B3"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/payments/GET/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIpaymentsGETC1661074"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/sync/OPTIONS/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIsyncOPTIONSC3BD5C15"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/sync/POST/ApiPermission.ConectadosFacturaStackConectadosFacturaAPI4133AF01.POST..sync": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIsyncPOSTApiPermissionConectadosFacturaStackConectadosFacturaAPI4133AF01POSTsync24A34F52"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/sync/POST/ApiPermission.Test.ConectadosFacturaStackConectadosFacturaAPI4133AF01.POST..sync": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIsyncPOSTApiPermissionTestConectadosFacturaStackConectadosFacturaAPI4133AF01POSTsync12425553"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/sync/POST/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIsyncPOSTD0022364"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/sync/GET/ApiPermission.ConectadosFacturaStackConectadosFacturaAPI4133AF01.GET..sync": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIsyncGETApiPermissionConectadosFacturaStackConectadosFacturaAPI4133AF01GETsync2720572F"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/sync/GET/ApiPermission.Test.ConectadosFacturaStackConectadosFacturaAPI4133AF01.GET..sync": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIsyncGETApiPermissionTestConectadosFacturaStackConectadosFacturaAPI4133AF01GETsync4C2B7FC0"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/sync/GET/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIsyncGET6BD74019"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/ocr/OPTIONS/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIocrOPTIONSEE140ED5"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/ocr/POST/ApiPermission.ConectadosFacturaStackConectadosFacturaAPI4133AF01.POST..ocr": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIocrPOSTApiPermissionConectadosFacturaStackConectadosFacturaAPI4133AF01POSTocrC02C3CEB"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/ocr/POST/ApiPermission.Test.ConectadosFacturaStackConectadosFacturaAPI4133AF01.POST..ocr": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIocrPOSTApiPermissionTestConectadosFacturaStackConectadosFacturaAPI4133AF01POSTocrA2C1AC21"
+    }
+  ],
+  "/ConectadosFacturaStack/ConectadosFacturaAPI/Default/ocr/POST/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConectadosFacturaAPIocrPOSTAFB08EA2"
+    }
+  ]
+}

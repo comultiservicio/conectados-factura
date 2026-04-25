@@ -129,6 +129,25 @@ export class ConectadosFacturaStack extends cdk.Stack {
       removalPolicy: RemovalPolicy.DESTROY,
     });
 
+    // Create a new VPC for the infrastructure
+    const vpc = new cdk.aws_ec2.Vpc(this, 'ConectadosVPC', {
+      cidr: '10.0.0.0/16',
+      maxAzs: 2,
+      natGateways: 1,
+      subnetConfiguration: [
+        {
+          cidrMask: 24,
+          name: 'public',
+          subnetType: cdk.aws_ec2.SubnetType.PUBLIC,
+        },
+        {
+          cidrMask: 24,
+          name: 'private',
+          subnetType: cdk.aws_ec2.SubnetType.PRIVATE_WITH_EGRESS,
+        },
+      ],
+    });
+
     // === RDS PostgreSQL ===
     const dbSecret = new secretsmanager.Secret(this, 'DatabaseSecret', {
       secretName: 'conectados-factura-db-secret',
@@ -143,7 +162,7 @@ export class ConectadosFacturaStack extends cdk.Stack {
     });
 
     const dbSecurityGroup = new cdk.aws_ec2.SecurityGroup(this, 'DatabaseSecurityGroup', {
-      vpc: cdk.aws_ec2.Vpc.fromLookup(this, 'VPC', { vpcId: 'vpc-xxxxxxxx' }),
+      vpc: vpc,
       allowAllOutbound: false,
       description: 'Security group for RDS PostgreSQL',
     });
@@ -154,7 +173,7 @@ export class ConectadosFacturaStack extends cdk.Stack {
         version: rds.PostgresEngineVersion.VER_15_4,
       }),
       instanceType: cdk.aws_ec2.InstanceType.of(cdk.aws_ec2.InstanceClass.BURSTABLE3, cdk.aws_ec2.InstanceSize.MICRO),
-      vpc: cdk.aws_ec2.Vpc.fromLookup(this, 'VPC', { vpcId: 'vpc-xxxxxxxx' }),
+      vpc: vpc,
       securityGroups: [dbSecurityGroup],
       credentials: rds.Credentials.fromSecret(dbSecret),
       databaseName: 'conectados_factura',
@@ -233,15 +252,15 @@ export class ConectadosFacturaStack extends cdk.Stack {
     // Auth Lambda
     const authLambda = new lambda.Function(this, 'AuthLambda', {
       ...commonLambdaProps,
-      handler: 'auth.handler',
-      code: lambda.Code.fromAsset('lambda/auth'),
+      handler: 'handler.handler',
+      code: lambda.Code.fromAsset('../lambda/auth'),
     });
 
     // Billing Lambda
     const billingLambda = new lambda.Function(this, 'BillingLambda', {
       ...commonLambdaProps,
-      handler: 'billing.handler',
-      code: lambda.Code.fromAsset('lambda/billing'),
+      handler: 'handler.handler',
+      code: lambda.Code.fromAsset('../lambda/billing'),
       timeout: cdk.Duration.minutes(1),
       memorySize: 512,
     });
@@ -249,29 +268,29 @@ export class ConectadosFacturaStack extends cdk.Stack {
     // Stock Lambda
     const stockLambda = new lambda.Function(this, 'StockLambda', {
       ...commonLambdaProps,
-      handler: 'stock.handler',
-      code: lambda.Code.fromAsset('lambda/stock'),
+      handler: 'handler.handler',
+      code: lambda.Code.fromAsset('../lambda/stock'),
     });
 
     // Payments Lambda
     const paymentsLambda = new lambda.Function(this, 'PaymentsLambda', {
       ...commonLambdaProps,
-      handler: 'payments.handler',
-      code: lambda.Code.fromAsset('lambda/payments'),
+      handler: 'handler.handler',
+      code: lambda.Code.fromAsset('../lambda/payments'),
     });
 
     // Sync Lambda
     const syncLambda = new lambda.Function(this, 'SyncLambda', {
       ...commonLambdaProps,
-      handler: 'sync.handler',
-      code: lambda.Code.fromAsset('lambda/sync'),
+      handler: 'handler.handler',
+      code: lambda.Code.fromAsset('../lambda/sync'),
     });
 
     // OCR Lambda
     const ocrLambda = new lambda.Function(this, 'OcrLambda', {
       ...commonLambdaProps,
-      handler: 'ocr.handler',
-      code: lambda.Code.fromAsset('lambda/ocr'),
+      handler: 'handler.handler',
+      code: lambda.Code.fromAsset('../lambda/ocr'),
       timeout: cdk.Duration.minutes(2),
       memorySize: 1024,
     });
