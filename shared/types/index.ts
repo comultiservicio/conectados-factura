@@ -1,5 +1,11 @@
 // Shared types used across the entire system
 
+export interface DecodedToken {
+  sub: string;
+  email: string;
+  role: 'admin' | 'user' | 'auditor';
+}
+
 export interface User {
   id: string;
   email: string;

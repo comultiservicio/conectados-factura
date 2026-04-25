@@ -1,0 +1,7647 @@
+{
+ "Resources": {
+  "InvoicesBucket57FCB164": {
+   "Type": "AWS::S3::Bucket",
+   "Properties": {
+    "BucketEncryption": {
+     "ServerSideEncryptionConfiguration": [
+      {
+       "ServerSideEncryptionByDefault": {
+        "SSEAlgorithm": "AES256"
+       }
+      }
+     ]
+    },
+    "BucketName": "conectados-factura-invoices",
+    "PublicAccessBlockConfiguration": {
+     "BlockPublicAcls": true,
+     "BlockPublicPolicy": true,
+     "IgnorePublicAcls": true,
+     "RestrictPublicBuckets": true
+    },
+    "Tags": [
+     {
+      "Key": "aws-cdk:auto-delete-objects",
+      "Value": "true"
+     }
+    ],
+    "VersioningConfiguration": {
+     "Status": "Enabled"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/InvoicesBucket/Resource"
+   }
+  },
+  "InvoicesBucketPolicy8F7685F0": {
+   "Type": "AWS::S3::BucketPolicy",
+   "Properties": {
+    "Bucket": {
+     "Ref": "InvoicesBucket57FCB164"
+    },
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "s3:PutBucketPolicy",
+        "s3:GetBucket*",
+        "s3:List*",
+        "s3:DeleteObject*"
+       ],
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": {
+         "Fn::GetAtt": [
+          "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+          "Arn"
+         ]
+        }
+       },
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "InvoicesBucket57FCB164",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "InvoicesBucket57FCB164",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/InvoicesBucket/Policy/Resource"
+   }
+  },
+  "InvoicesBucketAutoDeleteObjectsCustomResource20170456": {
+   "Type": "Custom::S3AutoDeleteObjects",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F",
+      "Arn"
+     ]
+    },
+    "BucketName": {
+     "Ref": "InvoicesBucket57FCB164"
+    }
+   },
+   "DependsOn": [
+    "InvoicesBucketPolicy8F7685F0"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/InvoicesBucket/AutoDeleteObjectsCustomResource/Default"
+   }
+  },
+  "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Version": "2012-10-17",
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ]
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Sub": "arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/Custom::S3AutoDeleteObjectsCustomResourceProvider/Role"
+   }
+  },
+  "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-123456789012-us-east-1",
+     "S3Key": "faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6.zip"
+    },
+    "Timeout": 900,
+    "MemorySize": 128,
+    "Handler": "index.handler",
+    "Role": {
+     "Fn::GetAtt": [
+      "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs22.x",
+    "Description": {
+     "Fn::Join": [
+      "",
+      [
+       "Lambda function for auto-deleting objects in ",
+       {
+        "Ref": "InvoicesBucket57FCB164"
+       },
+       " S3 bucket."
+      ]
+     ]
+    }
+   },
+   "DependsOn": [
+    "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/Custom::S3AutoDeleteObjectsCustomResourceProvider/Handler",
+    "aws:asset:path": "asset.faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6",
+    "aws:asset:property": "Code"
+   }
+  },
+  "DocumentsBucket9EC9DEB9": {
+   "Type": "AWS::S3::Bucket",
+   "Properties": {
+    "BucketEncryption": {
+     "ServerSideEncryptionConfiguration": [
+      {
+       "ServerSideEncryptionByDefault": {
+        "SSEAlgorithm": "AES256"
+       }
+      }
+     ]
+    },
+    "BucketName": "conectados-factura-documents",
+    "PublicAccessBlockConfiguration": {
+     "BlockPublicAcls": true,
+     "BlockPublicPolicy": true,
+     "IgnorePublicAcls": true,
+     "RestrictPublicBuckets": true
+    },
+    "Tags": [
+     {
+      "Key": "aws-cdk:auto-delete-objects",
+      "Value": "true"
+     }
+    ],
+    "VersioningConfiguration": {
+     "Status": "Enabled"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/DocumentsBucket/Resource"
+   }
+  },
+  "DocumentsBucketPolicy1F991BD4": {
+   "Type": "AWS::S3::BucketPolicy",
+   "Properties": {
+    "Bucket": {
+     "Ref": "DocumentsBucket9EC9DEB9"
+    },
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "s3:PutBucketPolicy",
+        "s3:GetBucket*",
+        "s3:List*",
+        "s3:DeleteObject*"
+       ],
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": {
+         "Fn::GetAtt": [
+          "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+          "Arn"
+         ]
+        }
+       },
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "DocumentsBucket9EC9DEB9",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "DocumentsBucket9EC9DEB9",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/DocumentsBucket/Policy/Resource"
+   }
+  },
+  "DocumentsBucketAutoDeleteObjectsCustomResourceFE3123FC": {
+   "Type": "Custom::S3AutoDeleteObjects",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F",
+      "Arn"
+     ]
+    },
+    "BucketName": {
+     "Ref": "DocumentsBucket9EC9DEB9"
+    }
+   },
+   "DependsOn": [
+    "DocumentsBucketPolicy1F991BD4"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/DocumentsBucket/AutoDeleteObjectsCustomResource/Default"
+   }
+  },
+  "SyncTable848D246E": {
+   "Type": "AWS::DynamoDB::Table",
+   "Properties": {
+    "AttributeDefinitions": [
+     {
+      "AttributeName": "userId",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "timestamp",
+      "AttributeType": "S"
+     }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "KeySchema": [
+     {
+      "AttributeName": "userId",
+      "KeyType": "HASH"
+     },
+     {
+      "AttributeName": "timestamp",
+      "KeyType": "RANGE"
+     }
+    ],
+    "TableName": "conectados-sync",
+    "TimeToLiveSpecification": {
+     "AttributeName": "ttl",
+     "Enabled": true
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/SyncTable/Resource"
+   }
+  },
+  "SessionsTable7C302024": {
+   "Type": "AWS::DynamoDB::Table",
+   "Properties": {
+    "AttributeDefinitions": [
+     {
+      "AttributeName": "sessionId",
+      "AttributeType": "S"
+     }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "KeySchema": [
+     {
+      "AttributeName": "sessionId",
+      "KeyType": "HASH"
+     }
+    ],
+    "TableName": "conectados-sessions",
+    "TimeToLiveSpecification": {
+     "AttributeName": "expiresAt",
+     "Enabled": true
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/SessionsTable/Resource"
+   }
+  },
+  "QueueTable4C3A1E0F": {
+   "Type": "AWS::DynamoDB::Table",
+   "Properties": {
+    "AttributeDefinitions": [
+     {
+      "AttributeName": "queueId",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "timestamp",
+      "AttributeType": "S"
+     }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "KeySchema": [
+     {
+      "AttributeName": "queueId",
+      "KeyType": "HASH"
+     },
+     {
+      "AttributeName": "timestamp",
+      "KeyType": "RANGE"
+     }
+    ],
+    "TableName": "conectados-queue"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/QueueTable/Resource"
+   }
+  },
+  "StockMovementsTable9F430DF2": {
+   "Type": "AWS::DynamoDB::Table",
+   "Properties": {
+    "AttributeDefinitions": [
+     {
+      "AttributeName": "id",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "productId",
+      "AttributeType": "S"
+     }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "KeySchema": [
+     {
+      "AttributeName": "id",
+      "KeyType": "HASH"
+     },
+     {
+      "AttributeName": "productId",
+      "KeyType": "RANGE"
+     }
+    ],
+    "TableName": "conectados-stock-movements"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/StockMovementsTable/Resource"
+   }
+  },
+  "ProductsTable241ADBFF": {
+   "Type": "AWS::DynamoDB::Table",
+   "Properties": {
+    "AttributeDefinitions": [
+     {
+      "AttributeName": "id",
+      "AttributeType": "S"
+     }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "KeySchema": [
+     {
+      "AttributeName": "id",
+      "KeyType": "HASH"
+     }
+    ],
+    "TableName": "conectados-products"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ProductsTable/Resource"
+   }
+  },
+  "WarehousesTableEAC387FA": {
+   "Type": "AWS::DynamoDB::Table",
+   "Properties": {
+    "AttributeDefinitions": [
+     {
+      "AttributeName": "id",
+      "AttributeType": "S"
+     }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "KeySchema": [
+     {
+      "AttributeName": "id",
+      "KeyType": "HASH"
+     }
+    ],
+    "TableName": "conectados-warehouses"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/WarehousesTable/Resource"
+   }
+  },
+  "CurrentStockTable6B453AAD": {
+   "Type": "AWS::DynamoDB::Table",
+   "Properties": {
+    "AttributeDefinitions": [
+     {
+      "AttributeName": "productId",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "warehouseId",
+      "AttributeType": "S"
+     }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "KeySchema": [
+     {
+      "AttributeName": "productId",
+      "KeyType": "HASH"
+     },
+     {
+      "AttributeName": "warehouseId",
+      "KeyType": "RANGE"
+     }
+    ],
+    "TableName": "conectados-current-stock"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/CurrentStockTable/Resource"
+   }
+  },
+  "InvoicesTable011644E3": {
+   "Type": "AWS::DynamoDB::Table",
+   "Properties": {
+    "AttributeDefinitions": [
+     {
+      "AttributeName": "id",
+      "AttributeType": "S"
+     }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "KeySchema": [
+     {
+      "AttributeName": "id",
+      "KeyType": "HASH"
+     }
+    ],
+    "TableName": "conectados-invoices"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/InvoicesTable/Resource"
+   }
+  },
+  "InvoiceItemsTable068BBDBC": {
+   "Type": "AWS::DynamoDB::Table",
+   "Properties": {
+    "AttributeDefinitions": [
+     {
+      "AttributeName": "id",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "invoiceId",
+      "AttributeType": "S"
+     }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "KeySchema": [
+     {
+      "AttributeName": "id",
+      "KeyType": "HASH"
+     },
+     {
+      "AttributeName": "invoiceId",
+      "KeyType": "RANGE"
+     }
+    ],
+    "TableName": "conectados-invoice-items"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/InvoiceItemsTable/Resource"
+   }
+  },
+  "PaymentsTable48A42630": {
+   "Type": "AWS::DynamoDB::Table",
+   "Properties": {
+    "AttributeDefinitions": [
+     {
+      "AttributeName": "id",
+      "AttributeType": "S"
+     }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "KeySchema": [
+     {
+      "AttributeName": "id",
+      "KeyType": "HASH"
+     }
+    ],
+    "TableName": "conectados-payments"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/PaymentsTable/Resource"
+   }
+  },
+  "OcrTable108CDB79": {
+   "Type": "AWS::DynamoDB::Table",
+   "Properties": {
+    "AttributeDefinitions": [
+     {
+      "AttributeName": "id",
+      "AttributeType": "S"
+     }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "KeySchema": [
+     {
+      "AttributeName": "id",
+      "KeyType": "HASH"
+     }
+    ],
+    "TableName": "conectados-ocr-documents"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/OcrTable/Resource"
+   }
+  },
+  "ConectadosVPC222DA076": {
+   "Type": "AWS::EC2::VPC",
+   "Properties": {
+    "CidrBlock": "10.0.0.0/16",
+    "EnableDnsHostnames": true,
+    "EnableDnsSupport": true,
+    "InstanceTenancy": "default",
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "ConectadosFacturaStack/ConectadosVPC"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosVPC/Resource"
+   }
+  },
+  "ConectadosVPCpublicSubnet1SubnetAA0751AF": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "AvailabilityZone": "dummy1a",
+    "CidrBlock": "10.0.0.0/24",
+    "MapPublicIpOnLaunch": true,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "public"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Public"
+     },
+     {
+      "Key": "Name",
+      "Value": "ConectadosFacturaStack/ConectadosVPC/publicSubnet1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "ConectadosVPC222DA076"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosVPC/publicSubnet1/Subnet"
+   }
+  },
+  "ConectadosVPCpublicSubnet1RouteTable7146A0F4": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "ConectadosFacturaStack/ConectadosVPC/publicSubnet1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "ConectadosVPC222DA076"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosVPC/publicSubnet1/RouteTable"
+   }
+  },
+  "ConectadosVPCpublicSubnet1RouteTableAssociation3AED5363": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "ConectadosVPCpublicSubnet1RouteTable7146A0F4"
+    },
+    "SubnetId": {
+     "Ref": "ConectadosVPCpublicSubnet1SubnetAA0751AF"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosVPC/publicSubnet1/RouteTableAssociation"
+   }
+  },
+  "ConectadosVPCpublicSubnet1DefaultRoute01EBD43D": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "GatewayId": {
+     "Ref": "ConectadosVPCIGW8AE9E21B"
+    },
+    "RouteTableId": {
+     "Ref": "ConectadosVPCpublicSubnet1RouteTable7146A0F4"
+    }
+   },
+   "DependsOn": [
+    "ConectadosVPCVPCGW78532155"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosVPC/publicSubnet1/DefaultRoute"
+   }
+  },
+  "ConectadosVPCpublicSubnet1EIPA3E6457D": {
+   "Type": "AWS::EC2::EIP",
+   "Properties": {
+    "Domain": "vpc",
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "ConectadosFacturaStack/ConectadosVPC/publicSubnet1"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosVPC/publicSubnet1/EIP"
+   }
+  },
+  "ConectadosVPCpublicSubnet1NATGateway4A100DB5": {
+   "Type": "AWS::EC2::NatGateway",
+   "Properties": {
+    "AllocationId": {
+     "Fn::GetAtt": [
+      "ConectadosVPCpublicSubnet1EIPA3E6457D",
+      "AllocationId"
+     ]
+    },
+    "SubnetId": {
+     "Ref": "ConectadosVPCpublicSubnet1SubnetAA0751AF"
+    },
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "ConectadosFacturaStack/ConectadosVPC/publicSubnet1"
+     }
+    ]
+   },
+   "DependsOn": [
+    "ConectadosVPCpublicSubnet1DefaultRoute01EBD43D",
+    "ConectadosVPCpublicSubnet1RouteTableAssociation3AED5363"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosVPC/publicSubnet1/NATGateway"
+   }
+  },
+  "ConectadosVPCpublicSubnet2SubnetE91ABF5D": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "AvailabilityZone": "dummy1b",
+    "CidrBlock": "10.0.1.0/24",
+    "MapPublicIpOnLaunch": true,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "public"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Public"
+     },
+     {
+      "Key": "Name",
+      "Value": "ConectadosFacturaStack/ConectadosVPC/publicSubnet2"
+     }
+    ],
+    "VpcId": {
+     "Ref": "ConectadosVPC222DA076"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosVPC/publicSubnet2/Subnet"
+   }
+  },
+  "ConectadosVPCpublicSubnet2RouteTableDFE65F4C": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "ConectadosFacturaStack/ConectadosVPC/publicSubnet2"
+     }
+    ],
+    "VpcId": {
+     "Ref": "ConectadosVPC222DA076"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosVPC/publicSubnet2/RouteTable"
+   }
+  },
+  "ConectadosVPCpublicSubnet2RouteTableAssociation921CF8E6": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "ConectadosVPCpublicSubnet2RouteTableDFE65F4C"
+    },
+    "SubnetId": {
+     "Ref": "ConectadosVPCpublicSubnet2SubnetE91ABF5D"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosVPC/publicSubnet2/RouteTableAssociation"
+   }
+  },
+  "ConectadosVPCpublicSubnet2DefaultRoute6CB397D8": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "GatewayId": {
+     "Ref": "ConectadosVPCIGW8AE9E21B"
+    },
+    "RouteTableId": {
+     "Ref": "ConectadosVPCpublicSubnet2RouteTableDFE65F4C"
+    }
+   },
+   "DependsOn": [
+    "ConectadosVPCVPCGW78532155"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosVPC/publicSubnet2/DefaultRoute"
+   }
+  },
+  "ConectadosVPCprivateSubnet1Subnet3588D8C0": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "AvailabilityZone": "dummy1a",
+    "CidrBlock": "10.0.2.0/24",
+    "MapPublicIpOnLaunch": false,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "private"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Private"
+     },
+     {
+      "Key": "Name",
+      "Value": "ConectadosFacturaStack/ConectadosVPC/privateSubnet1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "ConectadosVPC222DA076"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosVPC/privateSubnet1/Subnet"
+   }
+  },
+  "ConectadosVPCprivateSubnet1RouteTable923B7429": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "ConectadosFacturaStack/ConectadosVPC/privateSubnet1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "ConectadosVPC222DA076"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosVPC/privateSubnet1/RouteTable"
+   }
+  },
+  "ConectadosVPCprivateSubnet1RouteTableAssociationDABC0546": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "ConectadosVPCprivateSubnet1RouteTable923B7429"
+    },
+    "SubnetId": {
+     "Ref": "ConectadosVPCprivateSubnet1Subnet3588D8C0"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosVPC/privateSubnet1/RouteTableAssociation"
+   }
+  },
+  "ConectadosVPCprivateSubnet1DefaultRoute007D97ED": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "NatGatewayId": {
+     "Ref": "ConectadosVPCpublicSubnet1NATGateway4A100DB5"
+    },
+    "RouteTableId": {
+     "Ref": "ConectadosVPCprivateSubnet1RouteTable923B7429"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosVPC/privateSubnet1/DefaultRoute"
+   }
+  },
+  "ConectadosVPCprivateSubnet2Subnet0E459A4D": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "AvailabilityZone": "dummy1b",
+    "CidrBlock": "10.0.3.0/24",
+    "MapPublicIpOnLaunch": false,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "private"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Private"
+     },
+     {
+      "Key": "Name",
+      "Value": "ConectadosFacturaStack/ConectadosVPC/privateSubnet2"
+     }
+    ],
+    "VpcId": {
+     "Ref": "ConectadosVPC222DA076"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosVPC/privateSubnet2/Subnet"
+   }
+  },
+  "ConectadosVPCprivateSubnet2RouteTable4A59007A": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "ConectadosFacturaStack/ConectadosVPC/privateSubnet2"
+     }
+    ],
+    "VpcId": {
+     "Ref": "ConectadosVPC222DA076"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosVPC/privateSubnet2/RouteTable"
+   }
+  },
+  "ConectadosVPCprivateSubnet2RouteTableAssociation6CBB99C0": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "ConectadosVPCprivateSubnet2RouteTable4A59007A"
+    },
+    "SubnetId": {
+     "Ref": "ConectadosVPCprivateSubnet2Subnet0E459A4D"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosVPC/privateSubnet2/RouteTableAssociation"
+   }
+  },
+  "ConectadosVPCprivateSubnet2DefaultRoute63D2B0EE": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "NatGatewayId": {
+     "Ref": "ConectadosVPCpublicSubnet1NATGateway4A100DB5"
+    },
+    "RouteTableId": {
+     "Ref": "ConectadosVPCprivateSubnet2RouteTable4A59007A"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosVPC/privateSubnet2/DefaultRoute"
+   }
+  },
+  "ConectadosVPCIGW8AE9E21B": {
+   "Type": "AWS::EC2::InternetGateway",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "ConectadosFacturaStack/ConectadosVPC"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosVPC/IGW"
+   }
+  },
+  "ConectadosVPCVPCGW78532155": {
+   "Type": "AWS::EC2::VPCGatewayAttachment",
+   "Properties": {
+    "InternetGatewayId": {
+     "Ref": "ConectadosVPCIGW8AE9E21B"
+    },
+    "VpcId": {
+     "Ref": "ConectadosVPC222DA076"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosVPC/VPCGW"
+   }
+  },
+  "DatabaseSecret86DBB7B3": {
+   "Type": "AWS::SecretsManager::Secret",
+   "Properties": {
+    "GenerateSecretString": {
+     "ExcludePunctuation": true,
+     "GenerateStringKey": "password",
+     "IncludeSpace": false,
+     "SecretStringTemplate": "{\"username\":\"conectados_admin\"}"
+    },
+    "Name": "conectados-factura-db-secret"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/DatabaseSecret/Resource"
+   }
+  },
+  "DatabaseSecretAttachment9A63A3D4": {
+   "Type": "AWS::SecretsManager::SecretTargetAttachment",
+   "Properties": {
+    "SecretId": {
+     "Ref": "DatabaseSecret86DBB7B3"
+    },
+    "TargetId": {
+     "Ref": "DatabaseB269D8BB"
+    },
+    "TargetType": "AWS::RDS::DBInstance"
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/DatabaseSecret/Attachment/Resource"
+   }
+  },
+  "DatabaseSecurityGroup7319C0F6": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "Security group for RDS PostgreSQL",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "255.255.255.255/32",
+      "Description": "Disallow all traffic",
+      "FromPort": 252,
+      "IpProtocol": "icmp",
+      "ToPort": 86
+     }
+    ],
+    "VpcId": {
+     "Ref": "ConectadosVPC222DA076"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/DatabaseSecurityGroup/Resource"
+   }
+  },
+  "DatabaseSubnetGroup7D60F180": {
+   "Type": "AWS::RDS::DBSubnetGroup",
+   "Properties": {
+    "DBSubnetGroupDescription": "Subnet group for Database database",
+    "SubnetIds": [
+     {
+      "Ref": "ConectadosVPCprivateSubnet1Subnet3588D8C0"
+     },
+     {
+      "Ref": "ConectadosVPCprivateSubnet2Subnet0E459A4D"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/Database/SubnetGroup/Default"
+   }
+  },
+  "DatabaseB269D8BB": {
+   "Type": "AWS::RDS::DBInstance",
+   "Properties": {
+    "AllocatedStorage": "20",
+    "BackupRetentionPeriod": 7,
+    "CopyTagsToSnapshot": true,
+    "DBInstanceClass": "db.t3.micro",
+    "DBInstanceIdentifier": "conectados-factura-db",
+    "DBName": "conectados_factura",
+    "DBSubnetGroupName": {
+     "Ref": "DatabaseSubnetGroup7D60F180"
+    },
+    "DeletionProtection": false,
+    "Engine": "postgres",
+    "EngineVersion": "15.4",
+    "MasterUserPassword": {
+     "Fn::Join": [
+      "",
+      [
+       "{{resolve:secretsmanager:",
+       {
+        "Ref": "DatabaseSecret86DBB7B3"
+       },
+       ":SecretString:password::}}"
+      ]
+     ]
+    },
+    "MasterUsername": {
+     "Fn::Join": [
+      "",
+      [
+       "{{resolve:secretsmanager:",
+       {
+        "Ref": "DatabaseSecret86DBB7B3"
+       },
+       ":SecretString:username::}}"
+      ]
+     ]
+    },
+    "MaxAllocatedStorage": 100,
+    "StorageType": "gp2",
+    "VPCSecurityGroups": [
+     {
+      "Fn::GetAtt": [
+       "DatabaseSecurityGroup7319C0F6",
+       "GroupId"
+      ]
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/Database/Resource"
+   }
+  },
+  "UserPool6BA7E5F2": {
+   "Type": "AWS::Cognito::UserPool",
+   "Properties": {
+    "AccountRecoverySetting": {
+     "RecoveryMechanisms": [
+      {
+       "Name": "verified_email",
+       "Priority": 1
+      }
+     ]
+    },
+    "AdminCreateUserConfig": {
+     "AllowAdminCreateUserOnly": false
+    },
+    "AutoVerifiedAttributes": [
+     "email"
+    ],
+    "EmailVerificationMessage": "The verification code to your new account is {####}",
+    "EmailVerificationSubject": "Verify your new account",
+    "Policies": {
+     "PasswordPolicy": {
+      "MinimumLength": 8,
+      "RequireLowercase": true,
+      "RequireNumbers": true,
+      "RequireSymbols": true,
+      "RequireUppercase": true
+     }
+    },
+    "SmsVerificationMessage": "The verification code to your new account is {####}",
+    "UserPoolName": "conectados-factura-users",
+    "UsernameAttributes": [
+     "email"
+    ],
+    "VerificationMessageTemplate": {
+     "DefaultEmailOption": "CONFIRM_WITH_CODE",
+     "EmailMessage": "The verification code to your new account is {####}",
+     "EmailSubject": "Verify your new account",
+     "SmsMessage": "The verification code to your new account is {####}"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/UserPool/Resource"
+   }
+  },
+  "UserPoolClient2F5918F7": {
+   "Type": "AWS::Cognito::UserPoolClient",
+   "Properties": {
+    "AllowedOAuthFlows": [
+     "implicit",
+     "code"
+    ],
+    "AllowedOAuthFlowsUserPoolClient": true,
+    "AllowedOAuthScopes": [
+     "profile",
+     "phone",
+     "email",
+     "openid",
+     "aws.cognito.signin.user.admin"
+    ],
+    "CallbackURLs": [
+     "https://example.com"
+    ],
+    "ExplicitAuthFlows": [
+     "ALLOW_USER_PASSWORD_AUTH",
+     "ALLOW_USER_SRP_AUTH",
+     "ALLOW_REFRESH_TOKEN_AUTH"
+    ],
+    "GenerateSecret": false,
+    "SupportedIdentityProviders": [
+     "COGNITO"
+    ],
+    "UserPoolId": {
+     "Ref": "UserPool6BA7E5F2"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/UserPoolClient/Resource"
+   }
+  },
+  "AuthLambdaServiceRole7D6ECDEC": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/AuthLambda/ServiceRole/Resource"
+   }
+  },
+  "AuthLambdaServiceRoleDefaultPolicy733D72E7": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "SyncTable848D246E",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "SyncTable848D246E",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "SessionsTable7C302024",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "SessionsTable7C302024",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "QueueTable4C3A1E0F",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "QueueTable4C3A1E0F",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "StockMovementsTable9F430DF2",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "StockMovementsTable9F430DF2",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "ProductsTable241ADBFF",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "ProductsTable241ADBFF",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "WarehousesTableEAC387FA",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "WarehousesTableEAC387FA",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "CurrentStockTable6B453AAD",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "CurrentStockTable6B453AAD",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "InvoicesTable011644E3",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "InvoicesTable011644E3",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "InvoiceItemsTable068BBDBC",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "InvoiceItemsTable068BBDBC",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "PaymentsTable48A42630",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "PaymentsTable48A42630",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "DatabaseSecret86DBB7B3"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "AuthLambdaServiceRoleDefaultPolicy733D72E7",
+    "Roles": [
+     {
+      "Ref": "AuthLambdaServiceRole7D6ECDEC"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/AuthLambda/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "AuthLambdaServiceRoleOverflowPolicy10D6E6958": {
+   "Type": "AWS::IAM::ManagedPolicy",
+   "Properties": {
+    "Description": "Part of the policies for ConectadosFacturaStack/AuthLambda/ServiceRole",
+    "Path": "/",
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "OcrTable108CDB79",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "OcrTable108CDB79",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "s3:GetObject*",
+        "s3:GetBucket*",
+        "s3:List*",
+        "s3:DeleteObject*",
+        "s3:PutObject",
+        "s3:PutObjectLegalHold",
+        "s3:PutObjectRetention",
+        "s3:PutObjectTagging",
+        "s3:PutObjectVersionTagging",
+        "s3:Abort*"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "InvoicesBucket57FCB164",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "InvoicesBucket57FCB164",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "s3:GetObject*",
+        "s3:GetBucket*",
+        "s3:List*",
+        "s3:DeleteObject*",
+        "s3:PutObject",
+        "s3:PutObjectLegalHold",
+        "s3:PutObjectRetention",
+        "s3:PutObjectTagging",
+        "s3:PutObjectVersionTagging",
+        "s3:Abort*"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "DocumentsBucket9EC9DEB9",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "DocumentsBucket9EC9DEB9",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "Roles": [
+     {
+      "Ref": "AuthLambdaServiceRole7D6ECDEC"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/AuthLambda/ServiceRole/OverflowPolicy1/Resource"
+   }
+  },
+  "AuthLambda6BB8C88C": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-123456789012-us-east-1",
+     "S3Key": "855afba44109fd4acea3147b905c11d321e37decd137f861b47be0192ced2dbc.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "DB_SECRET_ARN": {
+       "Ref": "DatabaseSecret86DBB7B3"
+      },
+      "SYNC_TABLE_NAME": {
+       "Ref": "SyncTable848D246E"
+      },
+      "SESSIONS_TABLE_NAME": {
+       "Ref": "SessionsTable7C302024"
+      },
+      "QUEUE_TABLE_NAME": {
+       "Ref": "QueueTable4C3A1E0F"
+      },
+      "INVOICES_BUCKET_NAME": {
+       "Ref": "InvoicesBucket57FCB164"
+      },
+      "DOCUMENTS_BUCKET_NAME": {
+       "Ref": "DocumentsBucket9EC9DEB9"
+      },
+      "USER_POOL_ID": {
+       "Ref": "UserPool6BA7E5F2"
+      },
+      "JWT_SECRET": "your-jwt-secret-key-change-in-production",
+      "STOCK_MOVEMENTS_TABLE": "conectados-stock-movements",
+      "PRODUCTS_TABLE": "conectados-products",
+      "WAREHOUSES_TABLE": "conectados-warehouses",
+      "CURRENT_STOCK_TABLE": "conectados-current-stock",
+      "INVOICES_TABLE": "conectados-invoices",
+      "INVOICE_ITEMS_TABLE": "conectados-invoice-items",
+      "PAYMENTS_TABLE": "conectados-payments",
+      "OCR_TABLE": "conectados-ocr-documents",
+      "SYNC_TABLE": {
+       "Ref": "SyncTable848D246E"
+      },
+      "SYNC_QUEUE_TABLE": {
+       "Ref": "QueueTable4C3A1E0F"
+      }
+     }
+    },
+    "Handler": "handler.handler",
+    "MemorySize": 256,
+    "Role": {
+     "Fn::GetAtt": [
+      "AuthLambdaServiceRole7D6ECDEC",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs18.x",
+    "Timeout": 30
+   },
+   "DependsOn": [
+    "AuthLambdaServiceRoleDefaultPolicy733D72E7",
+    "AuthLambdaServiceRoleOverflowPolicy10D6E6958",
+    "AuthLambdaServiceRole7D6ECDEC"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/AuthLambda/Resource",
+    "aws:asset:path": "asset.855afba44109fd4acea3147b905c11d321e37decd137f861b47be0192ced2dbc",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "AuthLambdaLogRetention3C91D089": {
+   "Type": "Custom::LogRetention",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+      "Arn"
+     ]
+    },
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/lambda/",
+       {
+        "Ref": "AuthLambda6BB8C88C"
+       }
+      ]
+     ]
+    },
+    "RetentionInDays": 7
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/AuthLambda/LogRetention/Resource"
+   }
+  },
+  "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/Resource"
+   }
+  },
+  "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "logs:PutRetentionPolicy",
+        "logs:DeleteRetentionPolicy"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB",
+    "Roles": [
+     {
+      "Ref": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Handler": "index.handler",
+    "Runtime": "nodejs22.x",
+    "Timeout": 900,
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-123456789012-us-east-1",
+     "S3Key": "2819175352ad1ce0dae768e83fc328fb70fb5f10b4a8ff0ccbcb791f02b0716d.zip"
+    },
+    "Role": {
+     "Fn::GetAtt": [
+      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB",
+      "Arn"
+     ]
+    }
+   },
+   "DependsOn": [
+    "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB",
+    "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/Resource",
+    "aws:asset:path": "asset.2819175352ad1ce0dae768e83fc328fb70fb5f10b4a8ff0ccbcb791f02b0716d",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "BillingLambdaServiceRoleB981AB85": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/BillingLambda/ServiceRole/Resource"
+   }
+  },
+  "BillingLambdaServiceRoleDefaultPolicy5D217417": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "SyncTable848D246E",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "SyncTable848D246E",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "SessionsTable7C302024",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "SessionsTable7C302024",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "QueueTable4C3A1E0F",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "QueueTable4C3A1E0F",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "StockMovementsTable9F430DF2",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "StockMovementsTable9F430DF2",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "ProductsTable241ADBFF",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "ProductsTable241ADBFF",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "WarehousesTableEAC387FA",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "WarehousesTableEAC387FA",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "CurrentStockTable6B453AAD",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "CurrentStockTable6B453AAD",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "InvoicesTable011644E3",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "InvoicesTable011644E3",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "InvoiceItemsTable068BBDBC",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "InvoiceItemsTable068BBDBC",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "PaymentsTable48A42630",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "PaymentsTable48A42630",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "DatabaseSecret86DBB7B3"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "BillingLambdaServiceRoleDefaultPolicy5D217417",
+    "Roles": [
+     {
+      "Ref": "BillingLambdaServiceRoleB981AB85"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/BillingLambda/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "BillingLambdaServiceRoleOverflowPolicy179A1465D": {
+   "Type": "AWS::IAM::ManagedPolicy",
+   "Properties": {
+    "Description": "Part of the policies for ConectadosFacturaStack/BillingLambda/ServiceRole",
+    "Path": "/",
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "OcrTable108CDB79",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "OcrTable108CDB79",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "s3:GetObject*",
+        "s3:GetBucket*",
+        "s3:List*",
+        "s3:DeleteObject*",
+        "s3:PutObject",
+        "s3:PutObjectLegalHold",
+        "s3:PutObjectRetention",
+        "s3:PutObjectTagging",
+        "s3:PutObjectVersionTagging",
+        "s3:Abort*"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "InvoicesBucket57FCB164",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "InvoicesBucket57FCB164",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "s3:GetObject*",
+        "s3:GetBucket*",
+        "s3:List*",
+        "s3:DeleteObject*",
+        "s3:PutObject",
+        "s3:PutObjectLegalHold",
+        "s3:PutObjectRetention",
+        "s3:PutObjectTagging",
+        "s3:PutObjectVersionTagging",
+        "s3:Abort*"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "DocumentsBucket9EC9DEB9",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "DocumentsBucket9EC9DEB9",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "Roles": [
+     {
+      "Ref": "BillingLambdaServiceRoleB981AB85"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/BillingLambda/ServiceRole/OverflowPolicy1/Resource"
+   }
+  },
+  "BillingLambdaC74DF4D2": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-123456789012-us-east-1",
+     "S3Key": "7ddeec57176b2ea8d06347050f7ed91caba7fcd3102218c7ff3531b3448167f4.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "DB_SECRET_ARN": {
+       "Ref": "DatabaseSecret86DBB7B3"
+      },
+      "SYNC_TABLE_NAME": {
+       "Ref": "SyncTable848D246E"
+      },
+      "SESSIONS_TABLE_NAME": {
+       "Ref": "SessionsTable7C302024"
+      },
+      "QUEUE_TABLE_NAME": {
+       "Ref": "QueueTable4C3A1E0F"
+      },
+      "INVOICES_BUCKET_NAME": {
+       "Ref": "InvoicesBucket57FCB164"
+      },
+      "DOCUMENTS_BUCKET_NAME": {
+       "Ref": "DocumentsBucket9EC9DEB9"
+      },
+      "USER_POOL_ID": {
+       "Ref": "UserPool6BA7E5F2"
+      },
+      "JWT_SECRET": "your-jwt-secret-key-change-in-production",
+      "STOCK_MOVEMENTS_TABLE": "conectados-stock-movements",
+      "PRODUCTS_TABLE": "conectados-products",
+      "WAREHOUSES_TABLE": "conectados-warehouses",
+      "CURRENT_STOCK_TABLE": "conectados-current-stock",
+      "INVOICES_TABLE": "conectados-invoices",
+      "INVOICE_ITEMS_TABLE": "conectados-invoice-items",
+      "PAYMENTS_TABLE": "conectados-payments",
+      "OCR_TABLE": "conectados-ocr-documents",
+      "SYNC_TABLE": {
+       "Ref": "SyncTable848D246E"
+      },
+      "SYNC_QUEUE_TABLE": {
+       "Ref": "QueueTable4C3A1E0F"
+      }
+     }
+    },
+    "Handler": "handler.handler",
+    "MemorySize": 512,
+    "Role": {
+     "Fn::GetAtt": [
+      "BillingLambdaServiceRoleB981AB85",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs18.x",
+    "Timeout": 60
+   },
+   "DependsOn": [
+    "BillingLambdaServiceRoleDefaultPolicy5D217417",
+    "BillingLambdaServiceRoleOverflowPolicy179A1465D",
+    "BillingLambdaServiceRoleB981AB85"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/BillingLambda/Resource",
+    "aws:asset:path": "asset.7ddeec57176b2ea8d06347050f7ed91caba7fcd3102218c7ff3531b3448167f4",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "BillingLambdaLogRetentionC2FA5919": {
+   "Type": "Custom::LogRetention",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+      "Arn"
+     ]
+    },
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/lambda/",
+       {
+        "Ref": "BillingLambdaC74DF4D2"
+       }
+      ]
+     ]
+    },
+    "RetentionInDays": 7
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/BillingLambda/LogRetention/Resource"
+   }
+  },
+  "StockLambdaServiceRoleD6FE9E36": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/StockLambda/ServiceRole/Resource"
+   }
+  },
+  "StockLambdaServiceRoleDefaultPolicy36E8D956": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "SyncTable848D246E",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "SyncTable848D246E",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "SessionsTable7C302024",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "SessionsTable7C302024",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "QueueTable4C3A1E0F",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "QueueTable4C3A1E0F",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "StockMovementsTable9F430DF2",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "StockMovementsTable9F430DF2",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "ProductsTable241ADBFF",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "ProductsTable241ADBFF",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "WarehousesTableEAC387FA",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "WarehousesTableEAC387FA",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "CurrentStockTable6B453AAD",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "CurrentStockTable6B453AAD",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "InvoicesTable011644E3",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "InvoicesTable011644E3",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "InvoiceItemsTable068BBDBC",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "InvoiceItemsTable068BBDBC",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "PaymentsTable48A42630",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "PaymentsTable48A42630",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "DatabaseSecret86DBB7B3"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "StockLambdaServiceRoleDefaultPolicy36E8D956",
+    "Roles": [
+     {
+      "Ref": "StockLambdaServiceRoleD6FE9E36"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/StockLambda/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "StockLambdaServiceRoleOverflowPolicy1F5B9E5E5": {
+   "Type": "AWS::IAM::ManagedPolicy",
+   "Properties": {
+    "Description": "Part of the policies for ConectadosFacturaStack/StockLambda/ServiceRole",
+    "Path": "/",
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "OcrTable108CDB79",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "OcrTable108CDB79",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "s3:GetObject*",
+        "s3:GetBucket*",
+        "s3:List*",
+        "s3:DeleteObject*",
+        "s3:PutObject",
+        "s3:PutObjectLegalHold",
+        "s3:PutObjectRetention",
+        "s3:PutObjectTagging",
+        "s3:PutObjectVersionTagging",
+        "s3:Abort*"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "InvoicesBucket57FCB164",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "InvoicesBucket57FCB164",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "s3:GetObject*",
+        "s3:GetBucket*",
+        "s3:List*",
+        "s3:DeleteObject*",
+        "s3:PutObject",
+        "s3:PutObjectLegalHold",
+        "s3:PutObjectRetention",
+        "s3:PutObjectTagging",
+        "s3:PutObjectVersionTagging",
+        "s3:Abort*"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "DocumentsBucket9EC9DEB9",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "DocumentsBucket9EC9DEB9",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "Roles": [
+     {
+      "Ref": "StockLambdaServiceRoleD6FE9E36"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/StockLambda/ServiceRole/OverflowPolicy1/Resource"
+   }
+  },
+  "StockLambda41850F3B": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-123456789012-us-east-1",
+     "S3Key": "61efac1efb097466d377bcc194b117506a7317f950db6df5ce3e6c420a6d3b49.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "DB_SECRET_ARN": {
+       "Ref": "DatabaseSecret86DBB7B3"
+      },
+      "SYNC_TABLE_NAME": {
+       "Ref": "SyncTable848D246E"
+      },
+      "SESSIONS_TABLE_NAME": {
+       "Ref": "SessionsTable7C302024"
+      },
+      "QUEUE_TABLE_NAME": {
+       "Ref": "QueueTable4C3A1E0F"
+      },
+      "INVOICES_BUCKET_NAME": {
+       "Ref": "InvoicesBucket57FCB164"
+      },
+      "DOCUMENTS_BUCKET_NAME": {
+       "Ref": "DocumentsBucket9EC9DEB9"
+      },
+      "USER_POOL_ID": {
+       "Ref": "UserPool6BA7E5F2"
+      },
+      "JWT_SECRET": "your-jwt-secret-key-change-in-production",
+      "STOCK_MOVEMENTS_TABLE": "conectados-stock-movements",
+      "PRODUCTS_TABLE": "conectados-products",
+      "WAREHOUSES_TABLE": "conectados-warehouses",
+      "CURRENT_STOCK_TABLE": "conectados-current-stock",
+      "INVOICES_TABLE": "conectados-invoices",
+      "INVOICE_ITEMS_TABLE": "conectados-invoice-items",
+      "PAYMENTS_TABLE": "conectados-payments",
+      "OCR_TABLE": "conectados-ocr-documents",
+      "SYNC_TABLE": {
+       "Ref": "SyncTable848D246E"
+      },
+      "SYNC_QUEUE_TABLE": {
+       "Ref": "QueueTable4C3A1E0F"
+      }
+     }
+    },
+    "Handler": "handler.handler",
+    "MemorySize": 256,
+    "Role": {
+     "Fn::GetAtt": [
+      "StockLambdaServiceRoleD6FE9E36",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs18.x",
+    "Timeout": 30
+   },
+   "DependsOn": [
+    "StockLambdaServiceRoleDefaultPolicy36E8D956",
+    "StockLambdaServiceRoleOverflowPolicy1F5B9E5E5",
+    "StockLambdaServiceRoleD6FE9E36"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/StockLambda/Resource",
+    "aws:asset:path": "asset.61efac1efb097466d377bcc194b117506a7317f950db6df5ce3e6c420a6d3b49",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "StockLambdaLogRetention7807B987": {
+   "Type": "Custom::LogRetention",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+      "Arn"
+     ]
+    },
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/lambda/",
+       {
+        "Ref": "StockLambda41850F3B"
+       }
+      ]
+     ]
+    },
+    "RetentionInDays": 7
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/StockLambda/LogRetention/Resource"
+   }
+  },
+  "PaymentsLambdaServiceRole23F7681E": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/PaymentsLambda/ServiceRole/Resource"
+   }
+  },
+  "PaymentsLambdaServiceRoleDefaultPolicyF6F7BEF3": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "SyncTable848D246E",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "SyncTable848D246E",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "SessionsTable7C302024",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "SessionsTable7C302024",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "QueueTable4C3A1E0F",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "QueueTable4C3A1E0F",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "StockMovementsTable9F430DF2",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "StockMovementsTable9F430DF2",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "ProductsTable241ADBFF",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "ProductsTable241ADBFF",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "WarehousesTableEAC387FA",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "WarehousesTableEAC387FA",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "CurrentStockTable6B453AAD",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "CurrentStockTable6B453AAD",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "InvoicesTable011644E3",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "InvoicesTable011644E3",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "InvoiceItemsTable068BBDBC",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "InvoiceItemsTable068BBDBC",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "PaymentsTable48A42630",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "PaymentsTable48A42630",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "DatabaseSecret86DBB7B3"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "PaymentsLambdaServiceRoleDefaultPolicyF6F7BEF3",
+    "Roles": [
+     {
+      "Ref": "PaymentsLambdaServiceRole23F7681E"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/PaymentsLambda/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "PaymentsLambdaServiceRoleOverflowPolicy17253567E": {
+   "Type": "AWS::IAM::ManagedPolicy",
+   "Properties": {
+    "Description": "Part of the policies for ConectadosFacturaStack/PaymentsLambda/ServiceRole",
+    "Path": "/",
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "OcrTable108CDB79",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "OcrTable108CDB79",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "s3:GetObject*",
+        "s3:GetBucket*",
+        "s3:List*",
+        "s3:DeleteObject*",
+        "s3:PutObject",
+        "s3:PutObjectLegalHold",
+        "s3:PutObjectRetention",
+        "s3:PutObjectTagging",
+        "s3:PutObjectVersionTagging",
+        "s3:Abort*"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "InvoicesBucket57FCB164",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "InvoicesBucket57FCB164",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "s3:GetObject*",
+        "s3:GetBucket*",
+        "s3:List*",
+        "s3:DeleteObject*",
+        "s3:PutObject",
+        "s3:PutObjectLegalHold",
+        "s3:PutObjectRetention",
+        "s3:PutObjectTagging",
+        "s3:PutObjectVersionTagging",
+        "s3:Abort*"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "DocumentsBucket9EC9DEB9",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "DocumentsBucket9EC9DEB9",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "Roles": [
+     {
+      "Ref": "PaymentsLambdaServiceRole23F7681E"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/PaymentsLambda/ServiceRole/OverflowPolicy1/Resource"
+   }
+  },
+  "PaymentsLambda27AA6830": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-123456789012-us-east-1",
+     "S3Key": "2b13af353ad05439e69ca9792b3fdc307d268cf90a114d127eff60b913f571c6.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "DB_SECRET_ARN": {
+       "Ref": "DatabaseSecret86DBB7B3"
+      },
+      "SYNC_TABLE_NAME": {
+       "Ref": "SyncTable848D246E"
+      },
+      "SESSIONS_TABLE_NAME": {
+       "Ref": "SessionsTable7C302024"
+      },
+      "QUEUE_TABLE_NAME": {
+       "Ref": "QueueTable4C3A1E0F"
+      },
+      "INVOICES_BUCKET_NAME": {
+       "Ref": "InvoicesBucket57FCB164"
+      },
+      "DOCUMENTS_BUCKET_NAME": {
+       "Ref": "DocumentsBucket9EC9DEB9"
+      },
+      "USER_POOL_ID": {
+       "Ref": "UserPool6BA7E5F2"
+      },
+      "JWT_SECRET": "your-jwt-secret-key-change-in-production",
+      "STOCK_MOVEMENTS_TABLE": "conectados-stock-movements",
+      "PRODUCTS_TABLE": "conectados-products",
+      "WAREHOUSES_TABLE": "conectados-warehouses",
+      "CURRENT_STOCK_TABLE": "conectados-current-stock",
+      "INVOICES_TABLE": "conectados-invoices",
+      "INVOICE_ITEMS_TABLE": "conectados-invoice-items",
+      "PAYMENTS_TABLE": "conectados-payments",
+      "OCR_TABLE": "conectados-ocr-documents",
+      "SYNC_TABLE": {
+       "Ref": "SyncTable848D246E"
+      },
+      "SYNC_QUEUE_TABLE": {
+       "Ref": "QueueTable4C3A1E0F"
+      }
+     }
+    },
+    "Handler": "handler.handler",
+    "MemorySize": 256,
+    "Role": {
+     "Fn::GetAtt": [
+      "PaymentsLambdaServiceRole23F7681E",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs18.x",
+    "Timeout": 30
+   },
+   "DependsOn": [
+    "PaymentsLambdaServiceRoleDefaultPolicyF6F7BEF3",
+    "PaymentsLambdaServiceRoleOverflowPolicy17253567E",
+    "PaymentsLambdaServiceRole23F7681E"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/PaymentsLambda/Resource",
+    "aws:asset:path": "asset.2b13af353ad05439e69ca9792b3fdc307d268cf90a114d127eff60b913f571c6",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "PaymentsLambdaLogRetention00E22953": {
+   "Type": "Custom::LogRetention",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+      "Arn"
+     ]
+    },
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/lambda/",
+       {
+        "Ref": "PaymentsLambda27AA6830"
+       }
+      ]
+     ]
+    },
+    "RetentionInDays": 7
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/PaymentsLambda/LogRetention/Resource"
+   }
+  },
+  "SyncLambdaServiceRoleB2D73C3C": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/SyncLambda/ServiceRole/Resource"
+   }
+  },
+  "SyncLambdaServiceRoleDefaultPolicyAF01A18C": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "SyncTable848D246E",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "SyncTable848D246E",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "SessionsTable7C302024",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "SessionsTable7C302024",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "QueueTable4C3A1E0F",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "QueueTable4C3A1E0F",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "StockMovementsTable9F430DF2",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "StockMovementsTable9F430DF2",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "ProductsTable241ADBFF",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "ProductsTable241ADBFF",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "WarehousesTableEAC387FA",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "WarehousesTableEAC387FA",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "CurrentStockTable6B453AAD",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "CurrentStockTable6B453AAD",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "InvoicesTable011644E3",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "InvoicesTable011644E3",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "InvoiceItemsTable068BBDBC",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "InvoiceItemsTable068BBDBC",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "PaymentsTable48A42630",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "PaymentsTable48A42630",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "DatabaseSecret86DBB7B3"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "SyncLambdaServiceRoleDefaultPolicyAF01A18C",
+    "Roles": [
+     {
+      "Ref": "SyncLambdaServiceRoleB2D73C3C"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/SyncLambda/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "SyncLambdaServiceRoleOverflowPolicy155C525D4": {
+   "Type": "AWS::IAM::ManagedPolicy",
+   "Properties": {
+    "Description": "Part of the policies for ConectadosFacturaStack/SyncLambda/ServiceRole",
+    "Path": "/",
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "OcrTable108CDB79",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "OcrTable108CDB79",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "s3:GetObject*",
+        "s3:GetBucket*",
+        "s3:List*",
+        "s3:DeleteObject*",
+        "s3:PutObject",
+        "s3:PutObjectLegalHold",
+        "s3:PutObjectRetention",
+        "s3:PutObjectTagging",
+        "s3:PutObjectVersionTagging",
+        "s3:Abort*"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "InvoicesBucket57FCB164",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "InvoicesBucket57FCB164",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "s3:GetObject*",
+        "s3:GetBucket*",
+        "s3:List*",
+        "s3:DeleteObject*",
+        "s3:PutObject",
+        "s3:PutObjectLegalHold",
+        "s3:PutObjectRetention",
+        "s3:PutObjectTagging",
+        "s3:PutObjectVersionTagging",
+        "s3:Abort*"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "DocumentsBucket9EC9DEB9",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "DocumentsBucket9EC9DEB9",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "Roles": [
+     {
+      "Ref": "SyncLambdaServiceRoleB2D73C3C"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/SyncLambda/ServiceRole/OverflowPolicy1/Resource"
+   }
+  },
+  "SyncLambda80EEFC7D": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-123456789012-us-east-1",
+     "S3Key": "f2e6b885676dc1f6e04e101e74ff90f06f92714cc8613f0d57014cb54d976a8c.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "DB_SECRET_ARN": {
+       "Ref": "DatabaseSecret86DBB7B3"
+      },
+      "SYNC_TABLE_NAME": {
+       "Ref": "SyncTable848D246E"
+      },
+      "SESSIONS_TABLE_NAME": {
+       "Ref": "SessionsTable7C302024"
+      },
+      "QUEUE_TABLE_NAME": {
+       "Ref": "QueueTable4C3A1E0F"
+      },
+      "INVOICES_BUCKET_NAME": {
+       "Ref": "InvoicesBucket57FCB164"
+      },
+      "DOCUMENTS_BUCKET_NAME": {
+       "Ref": "DocumentsBucket9EC9DEB9"
+      },
+      "USER_POOL_ID": {
+       "Ref": "UserPool6BA7E5F2"
+      },
+      "JWT_SECRET": "your-jwt-secret-key-change-in-production",
+      "STOCK_MOVEMENTS_TABLE": "conectados-stock-movements",
+      "PRODUCTS_TABLE": "conectados-products",
+      "WAREHOUSES_TABLE": "conectados-warehouses",
+      "CURRENT_STOCK_TABLE": "conectados-current-stock",
+      "INVOICES_TABLE": "conectados-invoices",
+      "INVOICE_ITEMS_TABLE": "conectados-invoice-items",
+      "PAYMENTS_TABLE": "conectados-payments",
+      "OCR_TABLE": "conectados-ocr-documents",
+      "SYNC_TABLE": {
+       "Ref": "SyncTable848D246E"
+      },
+      "SYNC_QUEUE_TABLE": {
+       "Ref": "QueueTable4C3A1E0F"
+      }
+     }
+    },
+    "Handler": "handler.handler",
+    "MemorySize": 256,
+    "Role": {
+     "Fn::GetAtt": [
+      "SyncLambdaServiceRoleB2D73C3C",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs18.x",
+    "Timeout": 30
+   },
+   "DependsOn": [
+    "SyncLambdaServiceRoleDefaultPolicyAF01A18C",
+    "SyncLambdaServiceRoleOverflowPolicy155C525D4",
+    "SyncLambdaServiceRoleB2D73C3C"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/SyncLambda/Resource",
+    "aws:asset:path": "asset.f2e6b885676dc1f6e04e101e74ff90f06f92714cc8613f0d57014cb54d976a8c",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "SyncLambdaLogRetentionB734BCBB": {
+   "Type": "Custom::LogRetention",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+      "Arn"
+     ]
+    },
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/lambda/",
+       {
+        "Ref": "SyncLambda80EEFC7D"
+       }
+      ]
+     ]
+    },
+    "RetentionInDays": 7
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/SyncLambda/LogRetention/Resource"
+   }
+  },
+  "OcrLambdaServiceRoleAA4FF8DD": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/OcrLambda/ServiceRole/Resource"
+   }
+  },
+  "OcrLambdaServiceRoleDefaultPolicyDC9127E5": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "SyncTable848D246E",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "SyncTable848D246E",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "SessionsTable7C302024",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "SessionsTable7C302024",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "QueueTable4C3A1E0F",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "QueueTable4C3A1E0F",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "StockMovementsTable9F430DF2",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "StockMovementsTable9F430DF2",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "ProductsTable241ADBFF",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "ProductsTable241ADBFF",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "WarehousesTableEAC387FA",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "WarehousesTableEAC387FA",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "CurrentStockTable6B453AAD",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "CurrentStockTable6B453AAD",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "InvoicesTable011644E3",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "InvoicesTable011644E3",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "InvoiceItemsTable068BBDBC",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "InvoiceItemsTable068BBDBC",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "PaymentsTable48A42630",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "PaymentsTable48A42630",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "DatabaseSecret86DBB7B3"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "OcrLambdaServiceRoleDefaultPolicyDC9127E5",
+    "Roles": [
+     {
+      "Ref": "OcrLambdaServiceRoleAA4FF8DD"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/OcrLambda/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "OcrLambdaServiceRoleOverflowPolicy14A314835": {
+   "Type": "AWS::IAM::ManagedPolicy",
+   "Properties": {
+    "Description": "Part of the policies for ConectadosFacturaStack/OcrLambda/ServiceRole",
+    "Path": "/",
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "OcrTable108CDB79",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "OcrTable108CDB79",
+          "Arn"
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "s3:GetObject*",
+        "s3:GetBucket*",
+        "s3:List*",
+        "s3:DeleteObject*",
+        "s3:PutObject",
+        "s3:PutObjectLegalHold",
+        "s3:PutObjectRetention",
+        "s3:PutObjectTagging",
+        "s3:PutObjectVersionTagging",
+        "s3:Abort*"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "InvoicesBucket57FCB164",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "InvoicesBucket57FCB164",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "s3:GetObject*",
+        "s3:GetBucket*",
+        "s3:List*",
+        "s3:DeleteObject*",
+        "s3:PutObject",
+        "s3:PutObjectLegalHold",
+        "s3:PutObjectRetention",
+        "s3:PutObjectTagging",
+        "s3:PutObjectVersionTagging",
+        "s3:Abort*"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "DocumentsBucket9EC9DEB9",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "DocumentsBucket9EC9DEB9",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "Roles": [
+     {
+      "Ref": "OcrLambdaServiceRoleAA4FF8DD"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/OcrLambda/ServiceRole/OverflowPolicy1/Resource"
+   }
+  },
+  "OcrLambda53584FF4": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-123456789012-us-east-1",
+     "S3Key": "0422c266c79d0722f08df2ef67b70455760553131c275759292ec112a6c1ed56.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "DB_SECRET_ARN": {
+       "Ref": "DatabaseSecret86DBB7B3"
+      },
+      "SYNC_TABLE_NAME": {
+       "Ref": "SyncTable848D246E"
+      },
+      "SESSIONS_TABLE_NAME": {
+       "Ref": "SessionsTable7C302024"
+      },
+      "QUEUE_TABLE_NAME": {
+       "Ref": "QueueTable4C3A1E0F"
+      },
+      "INVOICES_BUCKET_NAME": {
+       "Ref": "InvoicesBucket57FCB164"
+      },
+      "DOCUMENTS_BUCKET_NAME": {
+       "Ref": "DocumentsBucket9EC9DEB9"
+      },
+      "USER_POOL_ID": {
+       "Ref": "UserPool6BA7E5F2"
+      },
+      "JWT_SECRET": "your-jwt-secret-key-change-in-production",
+      "STOCK_MOVEMENTS_TABLE": "conectados-stock-movements",
+      "PRODUCTS_TABLE": "conectados-products",
+      "WAREHOUSES_TABLE": "conectados-warehouses",
+      "CURRENT_STOCK_TABLE": "conectados-current-stock",
+      "INVOICES_TABLE": "conectados-invoices",
+      "INVOICE_ITEMS_TABLE": "conectados-invoice-items",
+      "PAYMENTS_TABLE": "conectados-payments",
+      "OCR_TABLE": "conectados-ocr-documents",
+      "SYNC_TABLE": {
+       "Ref": "SyncTable848D246E"
+      },
+      "SYNC_QUEUE_TABLE": {
+       "Ref": "QueueTable4C3A1E0F"
+      }
+     }
+    },
+    "Handler": "handler.handler",
+    "MemorySize": 1024,
+    "Role": {
+     "Fn::GetAtt": [
+      "OcrLambdaServiceRoleAA4FF8DD",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs18.x",
+    "Timeout": 120
+   },
+   "DependsOn": [
+    "OcrLambdaServiceRoleDefaultPolicyDC9127E5",
+    "OcrLambdaServiceRoleOverflowPolicy14A314835",
+    "OcrLambdaServiceRoleAA4FF8DD"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/OcrLambda/Resource",
+    "aws:asset:path": "asset.0422c266c79d0722f08df2ef67b70455760553131c275759292ec112a6c1ed56",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "OcrLambdaLogRetentionA285E80B": {
+   "Type": "Custom::LogRetention",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+      "Arn"
+     ]
+    },
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/lambda/",
+       {
+        "Ref": "OcrLambda53584FF4"
+       }
+      ]
+     ]
+    },
+    "RetentionInDays": 7
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/OcrLambda/LogRetention/Resource"
+   }
+  },
+  "LambdaRole3A44B857": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/LambdaRole/Resource"
+   }
+  },
+  "AuthLambdaPolicyAEE126AE": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "rds-db:connect",
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "DatabaseSecretAttachment9A63A3D4"
+       }
+      },
+      {
+       "Action": "cognito-idp:*",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "UserPool6BA7E5F2",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "textract:*",
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "ses:*",
+        "sns:*"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "AuthLambdaPolicyAEE126AE",
+    "Roles": [
+     {
+      "Ref": "AuthLambdaServiceRole7D6ECDEC"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/AuthLambdaPolicy/Resource"
+   }
+  },
+  "BillingLambdaPolicy456B0288": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "rds-db:connect",
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "DatabaseSecretAttachment9A63A3D4"
+       }
+      },
+      {
+       "Action": "cognito-idp:*",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "UserPool6BA7E5F2",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "textract:*",
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "ses:*",
+        "sns:*"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "BillingLambdaPolicy456B0288",
+    "Roles": [
+     {
+      "Ref": "BillingLambdaServiceRoleB981AB85"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/BillingLambdaPolicy/Resource"
+   }
+  },
+  "StockLambdaPolicyBF0FD46A": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "rds-db:connect",
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "DatabaseSecretAttachment9A63A3D4"
+       }
+      },
+      {
+       "Action": "cognito-idp:*",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "UserPool6BA7E5F2",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "textract:*",
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "ses:*",
+        "sns:*"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "StockLambdaPolicyBF0FD46A",
+    "Roles": [
+     {
+      "Ref": "StockLambdaServiceRoleD6FE9E36"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/StockLambdaPolicy/Resource"
+   }
+  },
+  "PaymentsLambdaPolicy0A6F53F0": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "rds-db:connect",
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "DatabaseSecretAttachment9A63A3D4"
+       }
+      },
+      {
+       "Action": "cognito-idp:*",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "UserPool6BA7E5F2",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "textract:*",
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "ses:*",
+        "sns:*"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "PaymentsLambdaPolicy0A6F53F0",
+    "Roles": [
+     {
+      "Ref": "PaymentsLambdaServiceRole23F7681E"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/PaymentsLambdaPolicy/Resource"
+   }
+  },
+  "SyncLambdaPolicy601CCA0F": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "rds-db:connect",
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "DatabaseSecretAttachment9A63A3D4"
+       }
+      },
+      {
+       "Action": "cognito-idp:*",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "UserPool6BA7E5F2",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "textract:*",
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "ses:*",
+        "sns:*"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "SyncLambdaPolicy601CCA0F",
+    "Roles": [
+     {
+      "Ref": "SyncLambdaServiceRoleB2D73C3C"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/SyncLambdaPolicy/Resource"
+   }
+  },
+  "OcrLambdaPolicyFF5DA5E2": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "rds-db:connect",
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "DatabaseSecretAttachment9A63A3D4"
+       }
+      },
+      {
+       "Action": "cognito-idp:*",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "UserPool6BA7E5F2",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "textract:*",
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "ses:*",
+        "sns:*"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "OcrLambdaPolicyFF5DA5E2",
+    "Roles": [
+     {
+      "Ref": "OcrLambdaServiceRoleAA4FF8DD"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/OcrLambdaPolicy/Resource"
+   }
+  },
+  "ConectadosFacturaAPI57BCB539": {
+   "Type": "AWS::ApiGateway::RestApi",
+   "Properties": {
+    "Description": "API para Conectados Factura+",
+    "Name": "Conectados Factura+ API"
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Resource"
+   }
+  },
+  "ConectadosFacturaAPICloudWatchRoleE9EFB002": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "apigateway.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
+       ]
+      ]
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/CloudWatchRole/Resource"
+   }
+  },
+  "ConectadosFacturaAPIAccount8569EBA5": {
+   "Type": "AWS::ApiGateway::Account",
+   "Properties": {
+    "CloudWatchRoleArn": {
+     "Fn::GetAtt": [
+      "ConectadosFacturaAPICloudWatchRoleE9EFB002",
+      "Arn"
+     ]
+    }
+   },
+   "DependsOn": [
+    "ConectadosFacturaAPI57BCB539"
+   ],
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Account"
+   }
+  },
+  "ConectadosFacturaAPIDeploymentA6711497b97e303fd6f1aec7be852400e80e1882": {
+   "Type": "AWS::ApiGateway::Deployment",
+   "Properties": {
+    "Description": "API para Conectados Factura+",
+    "RestApiId": {
+     "Ref": "ConectadosFacturaAPI57BCB539"
+    }
+   },
+   "DependsOn": [
+    "ConectadosFacturaAPIauthGETB71E84AE",
+    "ConectadosFacturaAPIauthOPTIONS52017754",
+    "ConectadosFacturaAPIauthPOSTE8489024",
+    "ConectadosFacturaAPIauth708F01D2",
+    "ConectadosFacturaAPIbillingGETEECC283E",
+    "ConectadosFacturaAPIbillingOPTIONS79F58573",
+    "ConectadosFacturaAPIbillingPOST3052DD59",
+    "ConectadosFacturaAPIbillingED91643F",
+    "ConectadosFacturaAPIocrOPTIONSEE140ED5",
+    "ConectadosFacturaAPIocrPOSTAFB08EA2",
+    "ConectadosFacturaAPIocr06D87232",
+    "ConectadosFacturaAPIOPTIONS6BDC7004",
+    "ConectadosFacturaAPIpaymentsGETC1661074",
+    "ConectadosFacturaAPIpaymentsOPTIONS9D91AEA9",
+    "ConectadosFacturaAPIpaymentsPOST4D52A575",
+    "ConectadosFacturaAPIpayments00FAE14B",
+    "ConectadosFacturaAPIstockGET3B5D8D35",
+    "ConectadosFacturaAPIstockOPTIONS8DB26E86",
+    "ConectadosFacturaAPIstockPOSTDB8FECFB",
+    "ConectadosFacturaAPIstockFB583C3C",
+    "ConectadosFacturaAPIsyncGET6BD74019",
+    "ConectadosFacturaAPIsyncOPTIONSC3BD5C15",
+    "ConectadosFacturaAPIsyncPOSTD0022364",
+    "ConectadosFacturaAPIsync6693D6EC"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Deployment/Resource",
+    "aws:cdk:do-not-refactor": true
+   }
+  },
+  "ConectadosFacturaAPIDeploymentStageprod77C455C1": {
+   "Type": "AWS::ApiGateway::Stage",
+   "Properties": {
+    "DeploymentId": {
+     "Ref": "ConectadosFacturaAPIDeploymentA6711497b97e303fd6f1aec7be852400e80e1882"
+    },
+    "MethodSettings": [
+     {
+      "DataTraceEnabled": true,
+      "HttpMethod": "*",
+      "LoggingLevel": "INFO",
+      "MetricsEnabled": true,
+      "ResourcePath": "/*"
+     }
+    ],
+    "RestApiId": {
+     "Ref": "ConectadosFacturaAPI57BCB539"
+    },
+    "StageName": "prod"
+   },
+   "DependsOn": [
+    "ConectadosFacturaAPIAccount8569EBA5"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/DeploymentStage.prod/Resource"
+   }
+  },
+  "ConectadosFacturaAPIOPTIONS6BDC7004": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "ApiKeyRequired": false,
+    "AuthorizationType": "NONE",
+    "HttpMethod": "OPTIONS",
+    "Integration": {
+     "IntegrationResponses": [
+      {
+       "ResponseParameters": {
+        "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+        "method.response.header.Access-Control-Allow-Origin": "'*'",
+        "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'"
+       },
+       "StatusCode": "204"
+      }
+     ],
+     "RequestTemplates": {
+      "application/json": "{ statusCode: 200 }"
+     },
+     "Type": "MOCK"
+    },
+    "MethodResponses": [
+     {
+      "ResponseParameters": {
+       "method.response.header.Access-Control-Allow-Headers": true,
+       "method.response.header.Access-Control-Allow-Origin": true,
+       "method.response.header.Access-Control-Allow-Methods": true
+      },
+      "StatusCode": "204"
+     }
+    ],
+    "ResourceId": {
+     "Fn::GetAtt": [
+      "ConectadosFacturaAPI57BCB539",
+      "RootResourceId"
+     ]
+    },
+    "RestApiId": {
+     "Ref": "ConectadosFacturaAPI57BCB539"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/OPTIONS/Resource"
+   }
+  },
+  "ConectadosFacturaAPIauth708F01D2": {
+   "Type": "AWS::ApiGateway::Resource",
+   "Properties": {
+    "ParentId": {
+     "Fn::GetAtt": [
+      "ConectadosFacturaAPI57BCB539",
+      "RootResourceId"
+     ]
+    },
+    "PathPart": "auth",
+    "RestApiId": {
+     "Ref": "ConectadosFacturaAPI57BCB539"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/auth/Resource"
+   }
+  },
+  "ConectadosFacturaAPIauthOPTIONS52017754": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "ApiKeyRequired": false,
+    "AuthorizationType": "NONE",
+    "HttpMethod": "OPTIONS",
+    "Integration": {
+     "IntegrationResponses": [
+      {
+       "ResponseParameters": {
+        "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+        "method.response.header.Access-Control-Allow-Origin": "'*'",
+        "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'"
+       },
+       "StatusCode": "204"
+      }
+     ],
+     "RequestTemplates": {
+      "application/json": "{ statusCode: 200 }"
+     },
+     "Type": "MOCK"
+    },
+    "MethodResponses": [
+     {
+      "ResponseParameters": {
+       "method.response.header.Access-Control-Allow-Headers": true,
+       "method.response.header.Access-Control-Allow-Origin": true,
+       "method.response.header.Access-Control-Allow-Methods": true
+      },
+      "StatusCode": "204"
+     }
+    ],
+    "ResourceId": {
+     "Ref": "ConectadosFacturaAPIauth708F01D2"
+    },
+    "RestApiId": {
+     "Ref": "ConectadosFacturaAPI57BCB539"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/auth/OPTIONS/Resource"
+   }
+  },
+  "ConectadosFacturaAPIauthPOSTApiPermissionConectadosFacturaStackConectadosFacturaAPI4133AF01POSTauthFD1418BA": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "AuthLambda6BB8C88C",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":execute-api:us-east-1:123456789012:",
+       {
+        "Ref": "ConectadosFacturaAPI57BCB539"
+       },
+       "/",
+       {
+        "Ref": "ConectadosFacturaAPIDeploymentStageprod77C455C1"
+       },
+       "/POST/auth"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/auth/POST/ApiPermission.ConectadosFacturaStackConectadosFacturaAPI4133AF01.POST..auth"
+   }
+  },
+  "ConectadosFacturaAPIauthPOSTApiPermissionTestConectadosFacturaStackConectadosFacturaAPI4133AF01POSTauth15089C6C": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "AuthLambda6BB8C88C",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":execute-api:us-east-1:123456789012:",
+       {
+        "Ref": "ConectadosFacturaAPI57BCB539"
+       },
+       "/test-invoke-stage/POST/auth"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/auth/POST/ApiPermission.Test.ConectadosFacturaStackConectadosFacturaAPI4133AF01.POST..auth"
+   }
+  },
+  "ConectadosFacturaAPIauthPOSTE8489024": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "NONE",
+    "HttpMethod": "POST",
+    "Integration": {
+     "IntegrationHttpMethod": "POST",
+     "Type": "AWS_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":apigateway:us-east-1:lambda:path/2015-03-31/functions/",
+        {
+         "Fn::GetAtt": [
+          "AuthLambda6BB8C88C",
+          "Arn"
+         ]
+        },
+        "/invocations"
+       ]
+      ]
+     }
+    },
+    "ResourceId": {
+     "Ref": "ConectadosFacturaAPIauth708F01D2"
+    },
+    "RestApiId": {
+     "Ref": "ConectadosFacturaAPI57BCB539"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/auth/POST/Resource"
+   }
+  },
+  "ConectadosFacturaAPIauthGETApiPermissionConectadosFacturaStackConectadosFacturaAPI4133AF01GETauth0B4CAB66": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "AuthLambda6BB8C88C",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":execute-api:us-east-1:123456789012:",
+       {
+        "Ref": "ConectadosFacturaAPI57BCB539"
+       },
+       "/",
+       {
+        "Ref": "ConectadosFacturaAPIDeploymentStageprod77C455C1"
+       },
+       "/GET/auth"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/auth/GET/ApiPermission.ConectadosFacturaStackConectadosFacturaAPI4133AF01.GET..auth"
+   }
+  },
+  "ConectadosFacturaAPIauthGETApiPermissionTestConectadosFacturaStackConectadosFacturaAPI4133AF01GETauthD10C33A2": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "AuthLambda6BB8C88C",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":execute-api:us-east-1:123456789012:",
+       {
+        "Ref": "ConectadosFacturaAPI57BCB539"
+       },
+       "/test-invoke-stage/GET/auth"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/auth/GET/ApiPermission.Test.ConectadosFacturaStackConectadosFacturaAPI4133AF01.GET..auth"
+   }
+  },
+  "ConectadosFacturaAPIauthGETB71E84AE": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "NONE",
+    "HttpMethod": "GET",
+    "Integration": {
+     "IntegrationHttpMethod": "POST",
+     "Type": "AWS_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":apigateway:us-east-1:lambda:path/2015-03-31/functions/",
+        {
+         "Fn::GetAtt": [
+          "AuthLambda6BB8C88C",
+          "Arn"
+         ]
+        },
+        "/invocations"
+       ]
+      ]
+     }
+    },
+    "ResourceId": {
+     "Ref": "ConectadosFacturaAPIauth708F01D2"
+    },
+    "RestApiId": {
+     "Ref": "ConectadosFacturaAPI57BCB539"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/auth/GET/Resource"
+   }
+  },
+  "ConectadosFacturaAPIbillingED91643F": {
+   "Type": "AWS::ApiGateway::Resource",
+   "Properties": {
+    "ParentId": {
+     "Fn::GetAtt": [
+      "ConectadosFacturaAPI57BCB539",
+      "RootResourceId"
+     ]
+    },
+    "PathPart": "billing",
+    "RestApiId": {
+     "Ref": "ConectadosFacturaAPI57BCB539"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/billing/Resource"
+   }
+  },
+  "ConectadosFacturaAPIbillingOPTIONS79F58573": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "ApiKeyRequired": false,
+    "AuthorizationType": "NONE",
+    "HttpMethod": "OPTIONS",
+    "Integration": {
+     "IntegrationResponses": [
+      {
+       "ResponseParameters": {
+        "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+        "method.response.header.Access-Control-Allow-Origin": "'*'",
+        "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'"
+       },
+       "StatusCode": "204"
+      }
+     ],
+     "RequestTemplates": {
+      "application/json": "{ statusCode: 200 }"
+     },
+     "Type": "MOCK"
+    },
+    "MethodResponses": [
+     {
+      "ResponseParameters": {
+       "method.response.header.Access-Control-Allow-Headers": true,
+       "method.response.header.Access-Control-Allow-Origin": true,
+       "method.response.header.Access-Control-Allow-Methods": true
+      },
+      "StatusCode": "204"
+     }
+    ],
+    "ResourceId": {
+     "Ref": "ConectadosFacturaAPIbillingED91643F"
+    },
+    "RestApiId": {
+     "Ref": "ConectadosFacturaAPI57BCB539"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/billing/OPTIONS/Resource"
+   }
+  },
+  "ConectadosFacturaAPIbillingPOSTApiPermissionConectadosFacturaStackConectadosFacturaAPI4133AF01POSTbilling2BDA939F": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "BillingLambdaC74DF4D2",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":execute-api:us-east-1:123456789012:",
+       {
+        "Ref": "ConectadosFacturaAPI57BCB539"
+       },
+       "/",
+       {
+        "Ref": "ConectadosFacturaAPIDeploymentStageprod77C455C1"
+       },
+       "/POST/billing"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/billing/POST/ApiPermission.ConectadosFacturaStackConectadosFacturaAPI4133AF01.POST..billing"
+   }
+  },
+  "ConectadosFacturaAPIbillingPOSTApiPermissionTestConectadosFacturaStackConectadosFacturaAPI4133AF01POSTbillingB656A7C8": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "BillingLambdaC74DF4D2",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":execute-api:us-east-1:123456789012:",
+       {
+        "Ref": "ConectadosFacturaAPI57BCB539"
+       },
+       "/test-invoke-stage/POST/billing"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/billing/POST/ApiPermission.Test.ConectadosFacturaStackConectadosFacturaAPI4133AF01.POST..billing"
+   }
+  },
+  "ConectadosFacturaAPIbillingPOST3052DD59": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "COGNITO_USER_POOLS",
+    "AuthorizerId": {
+     "Ref": "CognitoAuthorizerF3215DBC"
+    },
+    "HttpMethod": "POST",
+    "Integration": {
+     "IntegrationHttpMethod": "POST",
+     "Type": "AWS_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":apigateway:us-east-1:lambda:path/2015-03-31/functions/",
+        {
+         "Fn::GetAtt": [
+          "BillingLambdaC74DF4D2",
+          "Arn"
+         ]
+        },
+        "/invocations"
+       ]
+      ]
+     }
+    },
+    "ResourceId": {
+     "Ref": "ConectadosFacturaAPIbillingED91643F"
+    },
+    "RestApiId": {
+     "Ref": "ConectadosFacturaAPI57BCB539"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/billing/POST/Resource"
+   }
+  },
+  "ConectadosFacturaAPIbillingGETApiPermissionConectadosFacturaStackConectadosFacturaAPI4133AF01GETbilling1247BA3E": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "BillingLambdaC74DF4D2",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":execute-api:us-east-1:123456789012:",
+       {
+        "Ref": "ConectadosFacturaAPI57BCB539"
+       },
+       "/",
+       {
+        "Ref": "ConectadosFacturaAPIDeploymentStageprod77C455C1"
+       },
+       "/GET/billing"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/billing/GET/ApiPermission.ConectadosFacturaStackConectadosFacturaAPI4133AF01.GET..billing"
+   }
+  },
+  "ConectadosFacturaAPIbillingGETApiPermissionTestConectadosFacturaStackConectadosFacturaAPI4133AF01GETbilling81B5EAAA": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "BillingLambdaC74DF4D2",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":execute-api:us-east-1:123456789012:",
+       {
+        "Ref": "ConectadosFacturaAPI57BCB539"
+       },
+       "/test-invoke-stage/GET/billing"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/billing/GET/ApiPermission.Test.ConectadosFacturaStackConectadosFacturaAPI4133AF01.GET..billing"
+   }
+  },
+  "ConectadosFacturaAPIbillingGETEECC283E": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "COGNITO_USER_POOLS",
+    "AuthorizerId": {
+     "Ref": "CognitoAuthorizerF3215DBC"
+    },
+    "HttpMethod": "GET",
+    "Integration": {
+     "IntegrationHttpMethod": "POST",
+     "Type": "AWS_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":apigateway:us-east-1:lambda:path/2015-03-31/functions/",
+        {
+         "Fn::GetAtt": [
+          "BillingLambdaC74DF4D2",
+          "Arn"
+         ]
+        },
+        "/invocations"
+       ]
+      ]
+     }
+    },
+    "ResourceId": {
+     "Ref": "ConectadosFacturaAPIbillingED91643F"
+    },
+    "RestApiId": {
+     "Ref": "ConectadosFacturaAPI57BCB539"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/billing/GET/Resource"
+   }
+  },
+  "ConectadosFacturaAPIstockFB583C3C": {
+   "Type": "AWS::ApiGateway::Resource",
+   "Properties": {
+    "ParentId": {
+     "Fn::GetAtt": [
+      "ConectadosFacturaAPI57BCB539",
+      "RootResourceId"
+     ]
+    },
+    "PathPart": "stock",
+    "RestApiId": {
+     "Ref": "ConectadosFacturaAPI57BCB539"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/stock/Resource"
+   }
+  },
+  "ConectadosFacturaAPIstockOPTIONS8DB26E86": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "ApiKeyRequired": false,
+    "AuthorizationType": "NONE",
+    "HttpMethod": "OPTIONS",
+    "Integration": {
+     "IntegrationResponses": [
+      {
+       "ResponseParameters": {
+        "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+        "method.response.header.Access-Control-Allow-Origin": "'*'",
+        "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'"
+       },
+       "StatusCode": "204"
+      }
+     ],
+     "RequestTemplates": {
+      "application/json": "{ statusCode: 200 }"
+     },
+     "Type": "MOCK"
+    },
+    "MethodResponses": [
+     {
+      "ResponseParameters": {
+       "method.response.header.Access-Control-Allow-Headers": true,
+       "method.response.header.Access-Control-Allow-Origin": true,
+       "method.response.header.Access-Control-Allow-Methods": true
+      },
+      "StatusCode": "204"
+     }
+    ],
+    "ResourceId": {
+     "Ref": "ConectadosFacturaAPIstockFB583C3C"
+    },
+    "RestApiId": {
+     "Ref": "ConectadosFacturaAPI57BCB539"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/stock/OPTIONS/Resource"
+   }
+  },
+  "ConectadosFacturaAPIstockPOSTApiPermissionConectadosFacturaStackConectadosFacturaAPI4133AF01POSTstockCB4D5158": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "StockLambda41850F3B",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":execute-api:us-east-1:123456789012:",
+       {
+        "Ref": "ConectadosFacturaAPI57BCB539"
+       },
+       "/",
+       {
+        "Ref": "ConectadosFacturaAPIDeploymentStageprod77C455C1"
+       },
+       "/POST/stock"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/stock/POST/ApiPermission.ConectadosFacturaStackConectadosFacturaAPI4133AF01.POST..stock"
+   }
+  },
+  "ConectadosFacturaAPIstockPOSTApiPermissionTestConectadosFacturaStackConectadosFacturaAPI4133AF01POSTstock571D70B6": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "StockLambda41850F3B",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":execute-api:us-east-1:123456789012:",
+       {
+        "Ref": "ConectadosFacturaAPI57BCB539"
+       },
+       "/test-invoke-stage/POST/stock"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/stock/POST/ApiPermission.Test.ConectadosFacturaStackConectadosFacturaAPI4133AF01.POST..stock"
+   }
+  },
+  "ConectadosFacturaAPIstockPOSTDB8FECFB": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "COGNITO_USER_POOLS",
+    "AuthorizerId": {
+     "Ref": "CognitoAuthorizerF3215DBC"
+    },
+    "HttpMethod": "POST",
+    "Integration": {
+     "IntegrationHttpMethod": "POST",
+     "Type": "AWS_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":apigateway:us-east-1:lambda:path/2015-03-31/functions/",
+        {
+         "Fn::GetAtt": [
+          "StockLambda41850F3B",
+          "Arn"
+         ]
+        },
+        "/invocations"
+       ]
+      ]
+     }
+    },
+    "ResourceId": {
+     "Ref": "ConectadosFacturaAPIstockFB583C3C"
+    },
+    "RestApiId": {
+     "Ref": "ConectadosFacturaAPI57BCB539"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/stock/POST/Resource"
+   }
+  },
+  "ConectadosFacturaAPIstockGETApiPermissionConectadosFacturaStackConectadosFacturaAPI4133AF01GETstock187A0371": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "StockLambda41850F3B",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":execute-api:us-east-1:123456789012:",
+       {
+        "Ref": "ConectadosFacturaAPI57BCB539"
+       },
+       "/",
+       {
+        "Ref": "ConectadosFacturaAPIDeploymentStageprod77C455C1"
+       },
+       "/GET/stock"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/stock/GET/ApiPermission.ConectadosFacturaStackConectadosFacturaAPI4133AF01.GET..stock"
+   }
+  },
+  "ConectadosFacturaAPIstockGETApiPermissionTestConectadosFacturaStackConectadosFacturaAPI4133AF01GETstockE5A3BC82": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "StockLambda41850F3B",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":execute-api:us-east-1:123456789012:",
+       {
+        "Ref": "ConectadosFacturaAPI57BCB539"
+       },
+       "/test-invoke-stage/GET/stock"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/stock/GET/ApiPermission.Test.ConectadosFacturaStackConectadosFacturaAPI4133AF01.GET..stock"
+   }
+  },
+  "ConectadosFacturaAPIstockGET3B5D8D35": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "COGNITO_USER_POOLS",
+    "AuthorizerId": {
+     "Ref": "CognitoAuthorizerF3215DBC"
+    },
+    "HttpMethod": "GET",
+    "Integration": {
+     "IntegrationHttpMethod": "POST",
+     "Type": "AWS_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":apigateway:us-east-1:lambda:path/2015-03-31/functions/",
+        {
+         "Fn::GetAtt": [
+          "StockLambda41850F3B",
+          "Arn"
+         ]
+        },
+        "/invocations"
+       ]
+      ]
+     }
+    },
+    "ResourceId": {
+     "Ref": "ConectadosFacturaAPIstockFB583C3C"
+    },
+    "RestApiId": {
+     "Ref": "ConectadosFacturaAPI57BCB539"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/stock/GET/Resource"
+   }
+  },
+  "ConectadosFacturaAPIpayments00FAE14B": {
+   "Type": "AWS::ApiGateway::Resource",
+   "Properties": {
+    "ParentId": {
+     "Fn::GetAtt": [
+      "ConectadosFacturaAPI57BCB539",
+      "RootResourceId"
+     ]
+    },
+    "PathPart": "payments",
+    "RestApiId": {
+     "Ref": "ConectadosFacturaAPI57BCB539"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/payments/Resource"
+   }
+  },
+  "ConectadosFacturaAPIpaymentsOPTIONS9D91AEA9": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "ApiKeyRequired": false,
+    "AuthorizationType": "NONE",
+    "HttpMethod": "OPTIONS",
+    "Integration": {
+     "IntegrationResponses": [
+      {
+       "ResponseParameters": {
+        "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+        "method.response.header.Access-Control-Allow-Origin": "'*'",
+        "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'"
+       },
+       "StatusCode": "204"
+      }
+     ],
+     "RequestTemplates": {
+      "application/json": "{ statusCode: 200 }"
+     },
+     "Type": "MOCK"
+    },
+    "MethodResponses": [
+     {
+      "ResponseParameters": {
+       "method.response.header.Access-Control-Allow-Headers": true,
+       "method.response.header.Access-Control-Allow-Origin": true,
+       "method.response.header.Access-Control-Allow-Methods": true
+      },
+      "StatusCode": "204"
+     }
+    ],
+    "ResourceId": {
+     "Ref": "ConectadosFacturaAPIpayments00FAE14B"
+    },
+    "RestApiId": {
+     "Ref": "ConectadosFacturaAPI57BCB539"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/payments/OPTIONS/Resource"
+   }
+  },
+  "ConectadosFacturaAPIpaymentsPOSTApiPermissionConectadosFacturaStackConectadosFacturaAPI4133AF01POSTpaymentsD96BD179": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "PaymentsLambda27AA6830",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":execute-api:us-east-1:123456789012:",
+       {
+        "Ref": "ConectadosFacturaAPI57BCB539"
+       },
+       "/",
+       {
+        "Ref": "ConectadosFacturaAPIDeploymentStageprod77C455C1"
+       },
+       "/POST/payments"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/payments/POST/ApiPermission.ConectadosFacturaStackConectadosFacturaAPI4133AF01.POST..payments"
+   }
+  },
+  "ConectadosFacturaAPIpaymentsPOSTApiPermissionTestConectadosFacturaStackConectadosFacturaAPI4133AF01POSTpayments21264FDA": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "PaymentsLambda27AA6830",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":execute-api:us-east-1:123456789012:",
+       {
+        "Ref": "ConectadosFacturaAPI57BCB539"
+       },
+       "/test-invoke-stage/POST/payments"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/payments/POST/ApiPermission.Test.ConectadosFacturaStackConectadosFacturaAPI4133AF01.POST..payments"
+   }
+  },
+  "ConectadosFacturaAPIpaymentsPOST4D52A575": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "COGNITO_USER_POOLS",
+    "AuthorizerId": {
+     "Ref": "CognitoAuthorizerF3215DBC"
+    },
+    "HttpMethod": "POST",
+    "Integration": {
+     "IntegrationHttpMethod": "POST",
+     "Type": "AWS_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":apigateway:us-east-1:lambda:path/2015-03-31/functions/",
+        {
+         "Fn::GetAtt": [
+          "PaymentsLambda27AA6830",
+          "Arn"
+         ]
+        },
+        "/invocations"
+       ]
+      ]
+     }
+    },
+    "ResourceId": {
+     "Ref": "ConectadosFacturaAPIpayments00FAE14B"
+    },
+    "RestApiId": {
+     "Ref": "ConectadosFacturaAPI57BCB539"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/payments/POST/Resource"
+   }
+  },
+  "ConectadosFacturaAPIpaymentsGETApiPermissionConectadosFacturaStackConectadosFacturaAPI4133AF01GETpaymentsDD188E38": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "PaymentsLambda27AA6830",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":execute-api:us-east-1:123456789012:",
+       {
+        "Ref": "ConectadosFacturaAPI57BCB539"
+       },
+       "/",
+       {
+        "Ref": "ConectadosFacturaAPIDeploymentStageprod77C455C1"
+       },
+       "/GET/payments"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/payments/GET/ApiPermission.ConectadosFacturaStackConectadosFacturaAPI4133AF01.GET..payments"
+   }
+  },
+  "ConectadosFacturaAPIpaymentsGETApiPermissionTestConectadosFacturaStackConectadosFacturaAPI4133AF01GETpaymentsEAC253B3": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "PaymentsLambda27AA6830",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":execute-api:us-east-1:123456789012:",
+       {
+        "Ref": "ConectadosFacturaAPI57BCB539"
+       },
+       "/test-invoke-stage/GET/payments"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/payments/GET/ApiPermission.Test.ConectadosFacturaStackConectadosFacturaAPI4133AF01.GET..payments"
+   }
+  },
+  "ConectadosFacturaAPIpaymentsGETC1661074": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "COGNITO_USER_POOLS",
+    "AuthorizerId": {
+     "Ref": "CognitoAuthorizerF3215DBC"
+    },
+    "HttpMethod": "GET",
+    "Integration": {
+     "IntegrationHttpMethod": "POST",
+     "Type": "AWS_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":apigateway:us-east-1:lambda:path/2015-03-31/functions/",
+        {
+         "Fn::GetAtt": [
+          "PaymentsLambda27AA6830",
+          "Arn"
+         ]
+        },
+        "/invocations"
+       ]
+      ]
+     }
+    },
+    "ResourceId": {
+     "Ref": "ConectadosFacturaAPIpayments00FAE14B"
+    },
+    "RestApiId": {
+     "Ref": "ConectadosFacturaAPI57BCB539"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/payments/GET/Resource"
+   }
+  },
+  "ConectadosFacturaAPIsync6693D6EC": {
+   "Type": "AWS::ApiGateway::Resource",
+   "Properties": {
+    "ParentId": {
+     "Fn::GetAtt": [
+      "ConectadosFacturaAPI57BCB539",
+      "RootResourceId"
+     ]
+    },
+    "PathPart": "sync",
+    "RestApiId": {
+     "Ref": "ConectadosFacturaAPI57BCB539"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/sync/Resource"
+   }
+  },
+  "ConectadosFacturaAPIsyncOPTIONSC3BD5C15": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "ApiKeyRequired": false,
+    "AuthorizationType": "NONE",
+    "HttpMethod": "OPTIONS",
+    "Integration": {
+     "IntegrationResponses": [
+      {
+       "ResponseParameters": {
+        "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+        "method.response.header.Access-Control-Allow-Origin": "'*'",
+        "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'"
+       },
+       "StatusCode": "204"
+      }
+     ],
+     "RequestTemplates": {
+      "application/json": "{ statusCode: 200 }"
+     },
+     "Type": "MOCK"
+    },
+    "MethodResponses": [
+     {
+      "ResponseParameters": {
+       "method.response.header.Access-Control-Allow-Headers": true,
+       "method.response.header.Access-Control-Allow-Origin": true,
+       "method.response.header.Access-Control-Allow-Methods": true
+      },
+      "StatusCode": "204"
+     }
+    ],
+    "ResourceId": {
+     "Ref": "ConectadosFacturaAPIsync6693D6EC"
+    },
+    "RestApiId": {
+     "Ref": "ConectadosFacturaAPI57BCB539"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/sync/OPTIONS/Resource"
+   }
+  },
+  "ConectadosFacturaAPIsyncPOSTApiPermissionConectadosFacturaStackConectadosFacturaAPI4133AF01POSTsync24A34F52": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "SyncLambda80EEFC7D",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":execute-api:us-east-1:123456789012:",
+       {
+        "Ref": "ConectadosFacturaAPI57BCB539"
+       },
+       "/",
+       {
+        "Ref": "ConectadosFacturaAPIDeploymentStageprod77C455C1"
+       },
+       "/POST/sync"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/sync/POST/ApiPermission.ConectadosFacturaStackConectadosFacturaAPI4133AF01.POST..sync"
+   }
+  },
+  "ConectadosFacturaAPIsyncPOSTApiPermissionTestConectadosFacturaStackConectadosFacturaAPI4133AF01POSTsync12425553": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "SyncLambda80EEFC7D",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":execute-api:us-east-1:123456789012:",
+       {
+        "Ref": "ConectadosFacturaAPI57BCB539"
+       },
+       "/test-invoke-stage/POST/sync"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/sync/POST/ApiPermission.Test.ConectadosFacturaStackConectadosFacturaAPI4133AF01.POST..sync"
+   }
+  },
+  "ConectadosFacturaAPIsyncPOSTD0022364": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "COGNITO_USER_POOLS",
+    "AuthorizerId": {
+     "Ref": "CognitoAuthorizerF3215DBC"
+    },
+    "HttpMethod": "POST",
+    "Integration": {
+     "IntegrationHttpMethod": "POST",
+     "Type": "AWS_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":apigateway:us-east-1:lambda:path/2015-03-31/functions/",
+        {
+         "Fn::GetAtt": [
+          "SyncLambda80EEFC7D",
+          "Arn"
+         ]
+        },
+        "/invocations"
+       ]
+      ]
+     }
+    },
+    "ResourceId": {
+     "Ref": "ConectadosFacturaAPIsync6693D6EC"
+    },
+    "RestApiId": {
+     "Ref": "ConectadosFacturaAPI57BCB539"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/sync/POST/Resource"
+   }
+  },
+  "ConectadosFacturaAPIsyncGETApiPermissionConectadosFacturaStackConectadosFacturaAPI4133AF01GETsync2720572F": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "SyncLambda80EEFC7D",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":execute-api:us-east-1:123456789012:",
+       {
+        "Ref": "ConectadosFacturaAPI57BCB539"
+       },
+       "/",
+       {
+        "Ref": "ConectadosFacturaAPIDeploymentStageprod77C455C1"
+       },
+       "/GET/sync"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/sync/GET/ApiPermission.ConectadosFacturaStackConectadosFacturaAPI4133AF01.GET..sync"
+   }
+  },
+  "ConectadosFacturaAPIsyncGETApiPermissionTestConectadosFacturaStackConectadosFacturaAPI4133AF01GETsync4C2B7FC0": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "SyncLambda80EEFC7D",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":execute-api:us-east-1:123456789012:",
+       {
+        "Ref": "ConectadosFacturaAPI57BCB539"
+       },
+       "/test-invoke-stage/GET/sync"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/sync/GET/ApiPermission.Test.ConectadosFacturaStackConectadosFacturaAPI4133AF01.GET..sync"
+   }
+  },
+  "ConectadosFacturaAPIsyncGET6BD74019": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "COGNITO_USER_POOLS",
+    "AuthorizerId": {
+     "Ref": "CognitoAuthorizerF3215DBC"
+    },
+    "HttpMethod": "GET",
+    "Integration": {
+     "IntegrationHttpMethod": "POST",
+     "Type": "AWS_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":apigateway:us-east-1:lambda:path/2015-03-31/functions/",
+        {
+         "Fn::GetAtt": [
+          "SyncLambda80EEFC7D",
+          "Arn"
+         ]
+        },
+        "/invocations"
+       ]
+      ]
+     }
+    },
+    "ResourceId": {
+     "Ref": "ConectadosFacturaAPIsync6693D6EC"
+    },
+    "RestApiId": {
+     "Ref": "ConectadosFacturaAPI57BCB539"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/sync/GET/Resource"
+   }
+  },
+  "ConectadosFacturaAPIocr06D87232": {
+   "Type": "AWS::ApiGateway::Resource",
+   "Properties": {
+    "ParentId": {
+     "Fn::GetAtt": [
+      "ConectadosFacturaAPI57BCB539",
+      "RootResourceId"
+     ]
+    },
+    "PathPart": "ocr",
+    "RestApiId": {
+     "Ref": "ConectadosFacturaAPI57BCB539"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/ocr/Resource"
+   }
+  },
+  "ConectadosFacturaAPIocrOPTIONSEE140ED5": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "ApiKeyRequired": false,
+    "AuthorizationType": "NONE",
+    "HttpMethod": "OPTIONS",
+    "Integration": {
+     "IntegrationResponses": [
+      {
+       "ResponseParameters": {
+        "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+        "method.response.header.Access-Control-Allow-Origin": "'*'",
+        "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'"
+       },
+       "StatusCode": "204"
+      }
+     ],
+     "RequestTemplates": {
+      "application/json": "{ statusCode: 200 }"
+     },
+     "Type": "MOCK"
+    },
+    "MethodResponses": [
+     {
+      "ResponseParameters": {
+       "method.response.header.Access-Control-Allow-Headers": true,
+       "method.response.header.Access-Control-Allow-Origin": true,
+       "method.response.header.Access-Control-Allow-Methods": true
+      },
+      "StatusCode": "204"
+     }
+    ],
+    "ResourceId": {
+     "Ref": "ConectadosFacturaAPIocr06D87232"
+    },
+    "RestApiId": {
+     "Ref": "ConectadosFacturaAPI57BCB539"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/ocr/OPTIONS/Resource"
+   }
+  },
+  "ConectadosFacturaAPIocrPOSTApiPermissionConectadosFacturaStackConectadosFacturaAPI4133AF01POSTocrC02C3CEB": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "OcrLambda53584FF4",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":execute-api:us-east-1:123456789012:",
+       {
+        "Ref": "ConectadosFacturaAPI57BCB539"
+       },
+       "/",
+       {
+        "Ref": "ConectadosFacturaAPIDeploymentStageprod77C455C1"
+       },
+       "/POST/ocr"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/ocr/POST/ApiPermission.ConectadosFacturaStackConectadosFacturaAPI4133AF01.POST..ocr"
+   }
+  },
+  "ConectadosFacturaAPIocrPOSTApiPermissionTestConectadosFacturaStackConectadosFacturaAPI4133AF01POSTocrA2C1AC21": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "OcrLambda53584FF4",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":execute-api:us-east-1:123456789012:",
+       {
+        "Ref": "ConectadosFacturaAPI57BCB539"
+       },
+       "/test-invoke-stage/POST/ocr"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/ocr/POST/ApiPermission.Test.ConectadosFacturaStackConectadosFacturaAPI4133AF01.POST..ocr"
+   }
+  },
+  "ConectadosFacturaAPIocrPOSTAFB08EA2": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "COGNITO_USER_POOLS",
+    "AuthorizerId": {
+     "Ref": "CognitoAuthorizerF3215DBC"
+    },
+    "HttpMethod": "POST",
+    "Integration": {
+     "IntegrationHttpMethod": "POST",
+     "Type": "AWS_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":apigateway:us-east-1:lambda:path/2015-03-31/functions/",
+        {
+         "Fn::GetAtt": [
+          "OcrLambda53584FF4",
+          "Arn"
+         ]
+        },
+        "/invocations"
+       ]
+      ]
+     }
+    },
+    "ResourceId": {
+     "Ref": "ConectadosFacturaAPIocr06D87232"
+    },
+    "RestApiId": {
+     "Ref": "ConectadosFacturaAPI57BCB539"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaAPI/Default/ocr/POST/Resource"
+   }
+  },
+  "CognitoAuthorizerF3215DBC": {
+   "Type": "AWS::ApiGateway::Authorizer",
+   "Properties": {
+    "IdentitySource": "method.request.header.Authorization",
+    "Name": "ConectadosFacturaStackCognitoAuthorizer231AF258",
+    "ProviderARNs": [
+     {
+      "Fn::GetAtt": [
+       "UserPool6BA7E5F2",
+       "Arn"
+      ]
+     }
+    ],
+    "RestApiId": {
+     "Ref": "ConectadosFacturaAPI57BCB539"
+    },
+    "Type": "COGNITO_USER_POOLS"
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/CognitoAuthorizer/Resource"
+   }
+  },
+  "APILatencyAlarm470C1454": {
+   "Type": "AWS::CloudWatch::Alarm",
+   "Properties": {
+    "AlarmDescription": "API latency is too high",
+    "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+    "Dimensions": [
+     {
+      "Name": "ApiName",
+      "Value": "Conectados Factura+ API"
+     }
+    ],
+    "EvaluationPeriods": 2,
+    "ExtendedStatistic": "p90",
+    "MetricName": "Latency",
+    "Namespace": "AWS/ApiGateway",
+    "Period": 300,
+    "Threshold": 5000
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/APILatencyAlarm/Resource"
+   }
+  },
+  "LambdaErrorAlarm646BFA4C": {
+   "Type": "AWS::CloudWatch::Alarm",
+   "Properties": {
+    "AlarmDescription": "Too many Lambda errors",
+    "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+    "Dimensions": [
+     {
+      "Name": "FunctionName",
+      "Value": {
+       "Ref": "BillingLambdaC74DF4D2"
+      }
+     }
+    ],
+    "EvaluationPeriods": 2,
+    "MetricName": "Errors",
+    "Namespace": "AWS/Lambda",
+    "Period": 300,
+    "Statistic": "Sum",
+    "Threshold": 5
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/LambdaErrorAlarm/Resource"
+   }
+  },
+  "AlertsTopic3414BE91": {
+   "Type": "AWS::SNS::Topic",
+   "Properties": {
+    "DisplayName": "Conectados Factura+ Alerts"
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/AlertsTopic/Resource"
+   }
+  },
+  "AlertsTopicalertsconectadosfacturacom973711A9": {
+   "Type": "AWS::SNS::Subscription",
+   "Properties": {
+    "Endpoint": "alerts@conectadosfactura.com",
+    "Protocol": "email",
+    "TopicArn": {
+     "Ref": "AlertsTopic3414BE91"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/AlertsTopic/alerts@conectadosfactura.com/Resource"
+   }
+  },
+  "ConectadosFacturaDashboardCF55510D": {
+   "Type": "AWS::CloudWatch::Dashboard",
+   "Properties": {
+    "DashboardBody": {
+     "Fn::Join": [
+      "",
+      [
+       "{\"widgets\":[{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":0,\"y\":0,\"properties\":{\"view\":\"timeSeries\",\"title\":\"API Latency\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"metrics\":[[\"AWS/ApiGateway\",\"Latency\",\"ApiName\",\"Conectados Factura+ API\",{\"stat\":\"p90\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":12,\"y\":0,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Lambda Invocations\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"metrics\":[[\"AWS/Lambda\",\"Invocations\",\"FunctionName\",\"",
+       {
+        "Ref": "BillingLambdaC74DF4D2"
+       },
+       "\",{\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":0,\"y\":6,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Database Connections\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"metrics\":[[\"AWS/RDS\",\"DatabaseConnections\",\"DBInstanceIdentifier\",\"",
+       {
+        "Ref": "DatabaseB269D8BB"
+       },
+       "\"]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":12,\"y\":6,\"properties\":{\"view\":\"timeSeries\",\"title\":\"DynamoDB Read/Write Capacity\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"metrics\":[[\"AWS/DynamoDB\",\"ConsumedReadCapacityUnits\",\"TableName\",\"",
+       {
+        "Ref": "SyncTable848D246E"
+       },
+       "\",{\"stat\":\"Sum\"}],[\"AWS/DynamoDB\",\"ConsumedWriteCapacityUnits\",\"TableName\",\"",
+       {
+        "Ref": "SyncTable848D246E"
+       },
+       "\",{\"stat\":\"Sum\",\"yAxis\":\"right\"}]],\"yAxis\":{}}}]}"
+      ]
+     ]
+    },
+    "DashboardName": "conectados-factura-dashboard"
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/ConectadosFacturaDashboard/Resource"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/6VTwW7bMAz9luasam3aXXZzk60osK5G3PVSDAUtc45aWzJEqlkm+N8HS7GTrLsUO/GRfBSfnuW5nH88k2cnsKFTVb2cNrqUoWBQLwI29BToQoYrr16QxeKnSegxzFr9S5vZp9nh2MCnCxlbJBM182yX2CDjXfmMimnWi/+a/iFSK7eNVtu9ppS/Q1kaKBgYWzTvFPZ2eNR1BYS9qLYGWluVMtxD2eAgM4JeoJrL8NCpofSQL0Tuy0arwpcmObxHK+sZp/FU39cyIqs0sLZmIg/g800+hG/A18C4ga3InX4Fxv3BN4bRGZwISckuy5hBrYdLiQKVd5q31876Lmo4LPSCUDlkasFAjU6GIuY74oBSuAdXIx+cOxH+7vTCVSTDEhhKILwxxGAUiiR9krG8elMYqb1QtjaarQzfCV1ubTMQJjyCRaN3So4rvWigLSuQ4Ys3ajT3EOfoWk2kremFhlaGlU0fKMb9q9yh22hOta8fFXpBF09AhEwyG4JobE3yq61XyGjiTuh0nT6NDCskzjod1+1hppT1hsUSu8ZuR4sPsoKhTo8oghWS9U7h8FTFLfLaVlFZQmN3t2SHk6ujWZR5Xlunf6OLAqasF6qxvtoAq7UMWQOujYQIlkDr0oKL26akF2RIhnvb6fhTJFD4kpTT3Wj7Yd73YuGJbftvqUet3NlXXaGLd40WDx5oUx/d885z57kXxlYon+nD6/xSnl/K85Nn0vrUecO6RblK8Q/gMnRmMgUAAA=="
+   },
+   "Metadata": {
+    "aws:cdk:path": "ConectadosFacturaStack/CDKMetadata/Default"
+   }
+  }
+ },
+ "Outputs": {
+  "ConectadosFacturaAPIEndpointB4FE15D0": {
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "https://",
+      {
+       "Ref": "ConectadosFacturaAPI57BCB539"
+      },
+      ".execute-api.us-east-1.",
+      {
+       "Ref": "AWS::URLSuffix"
+      },
+      "/",
+      {
+       "Ref": "ConectadosFacturaAPIDeploymentStageprod77C455C1"
+      },
+      "/"
+     ]
+    ]
+   }
+  },
+  "APIEndpoint": {
+   "Description": "API Gateway endpoint URL",
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "https://",
+      {
+       "Ref": "ConectadosFacturaAPI57BCB539"
+      },
+      ".execute-api.us-east-1.",
+      {
+       "Ref": "AWS::URLSuffix"
+      },
+      "/",
+      {
+       "Ref": "ConectadosFacturaAPIDeploymentStageprod77C455C1"
+      },
+      "/"
+     ]
+    ]
+   }
+  },
+  "UserPoolId": {
+   "Description": "Cognito User Pool ID",
+   "Value": {
+    "Ref": "UserPool6BA7E5F2"
+   }
+  },
+  "UserPoolClientId": {
+   "Description": "Cognito User Pool Client ID",
+   "Value": {
+    "Ref": "UserPoolClient2F5918F7"
+   }
+  },
+  "DatabaseEndpoint": {
+   "Description": "RDS PostgreSQL endpoint",
+   "Value": {
+    "Fn::GetAtt": [
+     "DatabaseB269D8BB",
+     "Endpoint.Address"
+    ]
+   }
+  },
+  "InvoicesBucketName": {
+   "Description": "S3 bucket for invoices",
+   "Value": {
+    "Ref": "InvoicesBucket57FCB164"
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}
