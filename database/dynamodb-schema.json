@@ -1,0 +1,356 @@
+{
+  "tables": {
+    "conectados-sync": {
+      "attributes": [
+        {
+          "name": "userId",
+          "type": "S"
+        },
+        {
+          "name": "timestamp",
+          "type": "S"
+        },
+        {
+          "name": "entityType",
+          "type": "S"
+        },
+        {
+          "name": "entityId",
+          "type": "S"
+        },
+        {
+          "name": "operation",
+          "type": "S"
+        },
+        {
+          "name": "data",
+          "type": "S"
+        },
+        {
+          "name": "status",
+          "type": "S"
+        },
+        {
+          "name": "retryCount",
+          "type": "N"
+        },
+        {
+          "name": "lastError",
+          "type": "S"
+        },
+        {
+          "name": "ttl",
+          "type": "N"
+        }
+      ],
+      "keySchema": [
+        {
+          "attributeName": "userId",
+          "keyType": "HASH"
+        },
+        {
+          "attributeName": "timestamp",
+          "keyType": "RANGE"
+        }
+      ],
+      "globalSecondaryIndexes": [
+        {
+          "indexName": "ByStatus",
+          "keySchema": [
+            {
+              "attributeName": "status",
+              "keyType": "HASH"
+            },
+            {
+              "attributeName": "timestamp",
+              "keyType": "RANGE"
+            }
+          ],
+          "projection": {
+            "projectionType": "ALL"
+          }
+        },
+        {
+          "indexName": "ByEntityType",
+          "keySchema": [
+            {
+              "attributeName": "entityType",
+              "keyType": "HASH"
+            },
+            {
+              "attributeName": "timestamp",
+              "keyType": "RANGE"
+            }
+          ],
+          "projection": {
+            "projectionType": "ALL"
+          }
+        }
+      ],
+      "billingMode": "PAY_PER_REQUEST",
+      "timeToLiveSpecification": {
+        "attributeName": "ttl",
+        "enabled": true
+      }
+    },
+    "conectados-sessions": {
+      "attributes": [
+        {
+          "name": "sessionId",
+          "type": "S"
+        },
+        {
+          "name": "userId",
+          "type": "S"
+        },
+        {
+          "name": "deviceInfo",
+          "type": "S"
+        },
+        {
+          "name": "lastActivity",
+          "type": "S"
+        },
+        {
+          "name": "offlineData",
+          "type": "S"
+        },
+        {
+          "name": "syncStatus",
+          "type": "S"
+        },
+        {
+          "name": "expiresAt",
+          "type": "N"
+        }
+      ],
+      "keySchema": [
+        {
+          "attributeName": "sessionId",
+          "keyType": "HASH"
+        }
+      ],
+      "globalSecondaryIndexes": [
+        {
+          "indexName": "ByUser",
+          "keySchema": [
+            {
+              "attributeName": "userId",
+              "keyType": "HASH"
+            },
+            {
+              "attributeName": "lastActivity",
+              "keyType": "RANGE"
+            }
+          ],
+          "projection": {
+            "projectionType": "ALL"
+          }
+        },
+        {
+          "indexName": "BySyncStatus",
+          "keySchema": [
+            {
+              "attributeName": "syncStatus",
+              "keyType": "HASH"
+            },
+            {
+              "attributeName": "lastActivity",
+              "keyType": "RANGE"
+            }
+          ],
+          "projection": {
+            "projectionType": "ALL"
+          }
+        }
+      ],
+      "billingMode": "PAY_PER_REQUEST",
+      "timeToLiveSpecification": {
+        "attributeName": "expiresAt",
+        "enabled": true
+      }
+    },
+    "conectados-queue": {
+      "attributes": [
+        {
+          "name": "queueId",
+          "type": "S"
+        },
+        {
+          "name": "timestamp",
+          "type": "S"
+        },
+        {
+          "name": "userId",
+          "type": "S"
+        },
+        {
+          "name": "entityType",
+          "type": "S"
+        },
+        {
+          "name": "entityId",
+          "type": "S"
+        },
+        {
+          "name": "operation",
+          "type": "S"
+        },
+        {
+          "name": "payload",
+          "type": "S"
+        },
+        {
+          "name": "priority",
+          "type": "N"
+        },
+        {
+          "name": "status",
+          "type": "S"
+        },
+        {
+          "name": "attempts",
+          "type": "N"
+        },
+        {
+          "name": "nextRetry",
+          "type": "S"
+        },
+        {
+          "name": "lastError",
+          "type": "S"
+        }
+      ],
+      "keySchema": [
+        {
+          "attributeName": "queueId",
+          "keyType": "HASH"
+        },
+        {
+          "attributeName": "timestamp",
+          "keyType": "RANGE"
+        }
+      ],
+      "globalSecondaryIndexes": [
+        {
+          "indexName": "ByStatus",
+          "keySchema": [
+            {
+              "attributeName": "status",
+              "keyType": "HASH"
+            },
+            {
+              "attributeName": "priority",
+              "keyType": "RANGE"
+            }
+          ],
+          "projection": {
+            "projectionType": "ALL"
+          }
+        },
+        {
+          "indexName": "ByUser",
+          "keySchema": [
+            {
+              "attributeName": "userId",
+              "keyType": "HASH"
+            },
+            {
+              "attributeName": "timestamp",
+              "keyType": "RANGE"
+            }
+          ],
+          "projection": {
+            "projectionType": "ALL"
+          }
+        },
+        {
+          "indexName": "ByNextRetry",
+          "keySchema": [
+            {
+              "attributeName": "status",
+              "keyType": "HASH"
+            },
+            {
+              "attributeName": "nextRetry",
+              "keyType": "RANGE"
+            }
+          ],
+          "projection": {
+            "projectionType": "ALL"
+          }
+        }
+      ],
+      "billingMode": "PAY_PER_REQUEST"
+    }
+  },
+  "sampleData": {
+    "conectados-sync": [
+      {
+        "userId": "user-123",
+        "timestamp": "2024-01-15T10:30:00Z",
+        "entityType": "invoice",
+        "entityId": "inv-456",
+        "operation": "create",
+        "data": "{\"id\":\"inv-456\",\"total\":1500.00,\"customer\":\"customer-789\"}",
+        "status": "synced",
+        "retryCount": 0,
+        "lastError": null,
+        "ttl": 1705699200
+      },
+      {
+        "userId": "user-123",
+        "timestamp": "2024-01-15T10:35:00Z",
+        "entityType": "stock_movement",
+        "entityId": "stock-789",
+        "operation": "update",
+        "data": "{\"id\":\"stock-789\",\"quantity\":-5,\"productId\":\"prod-123\"}",
+        "status": "pending",
+        "retryCount": 1,
+        "lastError": "Connection timeout",
+        "ttl": 1705699200
+      }
+    ],
+    "conectados-sessions": [
+      {
+        "sessionId": "sess-abc123",
+        "userId": "user-123",
+        "deviceInfo": "{\"platform\":\"ios\",\"version\":\"1.0.0\",\"deviceId\":\"device-456\"}",
+        "lastActivity": "2024-01-15T10:40:00Z",
+        "offlineData": "{\"pendingInvoices\":2,\"pendingStockMovements\":5}",
+        "syncStatus": "syncing",
+        "expiresAt": 1705785600
+      }
+    ],
+    "conectados-queue": [
+      {
+        "queueId": "queue-afip-invoice",
+        "timestamp": "2024-01-15T10:30:00Z",
+        "userId": "user-123",
+        "entityType": "invoice",
+        "entityId": "inv-456",
+        "operation": "process_afip",
+        "payload": "{\"invoiceId\":\"inv-456\",\"type\":\"A\",\"customerData\":{...}}",
+        "priority": 1,
+        "status": "processing",
+        "attempts": 1,
+        "nextRetry": "2024-01-15T10:35:00Z",
+        "lastError": null
+      },
+      {
+        "queueId": "queue-stock-update",
+        "timestamp": "2024-01-15T10:35:00Z",
+        "userId": "user-123",
+        "entityType": "stock_movement",
+        "entityId": "stock-789",
+        "operation": "update_stock",
+        "payload": "{\"productId\":\"prod-123\",\"quantity\":-5,\"warehouseId\":\"wh-001\"}",
+        "priority": 2,
+        "status": "failed",
+        "attempts": 3,
+        "nextRetry": "2024-01-15T10:45:00Z",
+        "lastError": "Database connection failed"
+      }
+    ]
+  }
+}
