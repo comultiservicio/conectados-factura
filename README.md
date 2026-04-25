@@ -597,16 +597,179 @@ npm run test:integration
 - [ ] Inteligencia artificial
 - [ ] API para terceros
 
-## 📞 Soporte y Contacto
+## � **Procedimientos de Merge y Despliegue en Producción**
 
-- **Email**: soporte@conectadosfactura.com
+### 📋 **Release v1.0.0 - Publicado**
+
+**Fecha**: April 25, 2026  
+**Estado**: ✅ PRODUCTION READY  
+**Branch**: feat/security-optimization → main  
+**Tag**: v1.0.0
+
+### 🔄 **Proceso de Merge**
+
+#### 1. **Crear Pull Request**
+```bash
+# Asegurarse de estar en la rama de feature
+git checkout feat/security-optimization
+
+# Push de la rama
+git push origin feat/security-optimization
+
+# Crear Pull Request en GitHub
+# Título: "feat: Merge security optimizations - v1.0.0"
+```
+
+#### 2. **Validación de CI/CD**
+- ✅ npm audit - 0 vulnerabilidades
+- ✅ npm test - 45/45 tests passing
+- ✅ npm run build - Compilación exitosa
+- ✅ cdk synth - Template validado
+- ✅ Snyk scan - 0 vulnerabilidades
+
+#### 3. **Squash Merge**
+```bash
+# Cambiar a main
+git checkout main
+
+# Squash merge desde feat/security-optimization
+git merge feat/security-optimization --squash
+
+# Commit con mensaje detallado
+git commit -m "feat: Merge security optimizations and comprehensive testing - v1.0.0"
+
+# Push a main
+git push origin main
+```
+
+#### 4. **Crear Tag de Release**
+```bash
+# Crear tag v1.0.0
+git tag v1.0.0
+
+# Push del tag
+git push origin v1.0.0
+```
+
+### 🚀 **Despliegue en Producción**
+
+#### 1. **Preparar Variables de Entorno**
+```powershell
+# Copiar archivo de producción
+cp infrastructure/.env.production infrastructure/.env
+
+# Editar con credenciales de producción
+# Asegurarse de usar:
+# - AWS_ACCESS_KEY_ID (producción)
+# - AWS_SECRET_ACCESS_KEY (producción)
+# - RDS_HOST (endpoint de producción)
+# - S3_BUCKET (bucket de producción)
+```
+
+#### 2. **Ejecutar Despliegue**
+```powershell
+# Ejecutar script de despliegue de producción
+.\scripts\deploy.ps1
+```
+
+El script ejecuta automáticamente:
+1. ✅ Instalación de dependencias
+2. ✅ Compilación TypeScript
+3. ✅ CDK Bootstrap
+4. ✅ CDK Deploy --all
+5. ✅ Migraciones PostgreSQL
+6. ✅ Validación de endpoints
+7. ✅ Configuración de alarmas CloudWatch
+
+#### 3. **Validación Post-Despliegue**
+```bash
+# Validar endpoints de producción
+./scripts/validate-deployment.sh
+
+# Verificar estado del sistema
+curl https://api.conectadosfactura.com/
+```
+
+### 📊 **Monitoreo de Producción**
+
+#### **Dashboards**
+- **CloudWatch**: https://us-east-1.console.aws.amazon.com/cloudwatch
+- **Dashboard**: conectados-factura-dashboard
+- **QuickSight**: https://us-east-1.quicksight.aws.amazon.com
+
+#### **Alarmas Críticas**
+- ✅ StockCriticalAlarm: <10 unidades
+- ✅ AFIPErrorsAlarm: >5 errores/5min
+- ✅ SyncFailuresAlarm: >3 fallos/5min
+- ✅ APIErrorsAlarm: >10 errores 5XX/5min
+- ✅ DatabaseConnectionsAlarm: >80 conexiones
+
+#### **Notificaciones SNS**
+- **Topic**: ConectadosAlertas
+- **Email 1**: conectados@chathannah.uk
+- **Email 2**: soporteco@chathannah.uk
+
+### 🎯 **Onboarding de Clientes Piloto**
+
+#### **Timeline de 8 Semanas**
+- **Semana 1-2**: Setup y configuración inicial
+- **Semana 3-4**: Testing de funcionalidades core
+- **Semana 5-6**: Testing offline y sincronización
+- **Semana 7-8**: Validación final y feedback
+
+#### **Recursos para Clientes Piloto**
+- ✅ Guía de inicio rápido: `PILOT-CUSTOMER-GUIDE.md`
+- ✅ Documentación API: Disponible en `/docs`
+- ✅ Soporte técnico: soporteco@chathannah.uk
+
+### 🔄 **Rollback Procedures**
+
+#### **Rollback de Infraestructura**
+```bash
+# Ejecutar rollback de CDK
+cdk destroy --all
+
+# Re-desplegar versión anterior
+cdk deploy --all
+```
+
+#### **Rollback de Base de Datos**
+```bash
+# Ejecutar script de rollback
+psql -h $DB_HOST -U $DB_USER -d $DB_NAME -f database/migrations/001_initial_schema_rollback.sql
+```
+
+### 📚 **Documentación de Release**
+
+- **Changelog**: `CHANGELOG-v1.0.0-FINAL.md`
+- **Release Notes**: `RELEASE-v1.0.0.md`
+- **Testing Report**: `COMPREHENSIVE-TESTING-REPORT.md`
+- **Validation Report**: `FINAL-VALIDATION-REPORT.md`
+- **Deployment Guide**: `DEPLOYMENT-COMPLETED.md`
+
+---
+
+## 📞 **Soporte y Contacto**
+
+### **Equipo de Soporte**
+- **Email Principal**: conectados@chathannah.uk
+- **Soporte Técnico**: soporteco@chathannah.uk
 - **Documentación**: docs.conectadosfactura.com
 - **Status**: status.conectadosfactura.com
 
-## 📄 Licencia
+### **Recursos de Monitoreo**
+- **GitHub**: https://github.com/comultiservicio/conectados-factura
+- **CloudWatch**: https://us-east-1.console.aws.amazon.com/cloudwatch
+- **QuickSight**: https://us-east-1.quicksight.aws.amazon.com
+- **RDS Console**: https://us-east-1.console.aws.amazon.com/rds
+
+---
+
+## 📄 **Licencia**
 
 MIT License - Ver archivo LICENSE para detalles.
 
 ---
 
-**Conectados Multiservicio © 2024**
+**Conectados Factura+ © 2024-2026**
+**Release v1.0.0 - Production Ready** 🚀
