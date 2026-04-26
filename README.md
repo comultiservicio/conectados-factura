@@ -89,6 +89,152 @@ chmod +x scripts/deploy.sh
 │   (Sincronización)│  │   (PostgreSQL)    │  │  (Documentos)     │
 └───────────────────┘  └───────────────────┘  └───────────────────┘
 
+---
+
+## 💻 **Desarrollo Frontend**
+
+### Frontend Web (React + TypeScript + Vite)
+
+#### Prerrequisitos
+- Node.js 18+
+- npm o yarn
+
+#### Instalación
+```bash
+# Navegar al directorio frontend
+cd frontend
+
+# Instalar dependencias
+npm install
+
+# Configurar variables de entorno
+cp .env.example .env
+# Editar .env con la URL de la API
+```
+
+#### Desarrollo
+```bash
+# Iniciar servidor de desarrollo
+npm run dev
+
+# El frontend estará disponible en http://localhost:3000
+```
+
+#### Build para Producción
+```bash
+# Compilar para producción
+npm run build
+
+# Los archivos estáticos se generarán en /dist
+```
+
+#### Estructura del Proyecto Frontend
+```
+frontend/
+├── src/
+│   ├── components/     # Componentes reutilizables
+│   │   ├── Navbar.tsx
+│   │   ├── Sidebar.tsx
+│   │   ├── Alerts.tsx
+│   │   └── Layout.tsx
+│   ├── pages/         # Páginas/Rutas
+│   │   ├── Login.tsx
+│   │   ├── Dashboard.tsx
+│   │   ├── Billing.tsx
+│   │   ├── Stock.tsx
+│   │   ├── Payments.tsx
+│   │   ├── Sync.tsx
+│   │   └── Ocr.tsx
+│   ├── services/      # Servicios API
+│   │   ├── api.ts
+│   │   ├── authService.ts
+│   │   ├── billingService.ts
+│   │   ├── stockService.ts
+│   │   ├── paymentsService.ts
+│   │   ├── syncService.ts
+│   │   └── ocrService.ts
+│   ├── context/       # Contextos React
+│   │   └── AuthContext.tsx
+│   ├── hooks/         # Custom Hooks
+│   │   └── useApi.ts
+│   ├── App.tsx
+│   └── main.tsx
+├── package.json
+├── tsconfig.json
+└── vite.config.ts
+```
+
+### Variables de Entorno Frontend
+```bash
+# API Configuration
+VITE_API_URL=https://api123456789.execute-api.us-east-1.amazonaws.com/prod
+
+# AWS Cognito (si es necesario)
+VITE_COGNITO_USER_POOL_ID=your-user-pool-id
+VITE_COGNITO_CLIENT_ID=your-client-id
+
+# Feature Flags
+VITE_ENABLE_OFFLINE_MODE=true
+VITE_ENABLE_OCR=true
+```
+
+---
+
+## 📱 **Desarrollo Mobile (React Native)**
+
+### App Móvil (React Native)
+
+#### Prerrequisitos
+- Node.js 18+
+- React Native CLI
+- Android Studio (para Android)
+- Xcode (para iOS - solo Mac)
+- JDK 11+
+
+#### Instalación
+```bash
+# Navegar al directorio mobile
+cd mobile
+
+# Instalar dependencias
+npm install
+
+# Configurar variables de entorno
+cp .env.example .env
+```
+
+#### Desarrollo
+```bash
+# Iniciar Metro Bundler
+npm start
+
+# Ejecutar en Android
+npm run android
+
+# Ejecutar en iOS
+npm run ios
+```
+
+#### Build para Producción
+```bash
+# Android
+npm run build:android
+
+# iOS
+npm run build:ios
+```
+
+#### Características Mobile
+- **Autenticación JWT**: Login con email/password
+- **Facturación**: Crear facturas AFIP
+- **Stock**: Consultar y actualizar inventario
+- **Pagos**: Procesar pagos
+- **Sync Offline**: Trabajar sin conexión
+- **OCR**: Escanear documentos con cámara
+- **Notificaciones Push**: Alertas de stock bajo
+
+---
+
 ## 📊 **Variables de Entorno**
 
 ### AWS Credentials (infrastructure/.env)
