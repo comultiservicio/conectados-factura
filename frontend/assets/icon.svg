@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Fondo circular -->
+  <circle cx="256" cy="256" r="240" fill="#3182ce"/>
+  
+  <!-- Documento/factura -->
+  <rect x="156" y="126" width="200" height="260" rx="8" fill="white"/>
+  
+  <!-- Líneas del documento -->
+  <rect x="176" y="156" width="160" height="12" rx="2" fill="#e2e8f0"/>
+  <rect x="176" y="186" width="120" height="8" rx="2" fill="#cbd5e0"/>
+  <rect x="176" y="206" width="140" height="8" rx="2" fill="#cbd5e0"/>
+  <rect x="176" y="226" width="100" height="8" rx="2" fill="#cbd5e0"/>
+  
+  <!-- Tabla -->
+  <rect x="176" y="256" width="160" height="1" fill="#a0aec0"/>
+  <rect x="176" y="276" width="160" height="1" fill="#a0aec0"/>
+  <rect x="176" y="296" width="160" height="1" fill="#a0aec0"/>
+  
+  <!-- Línea vertical tabla -->
+  <rect x="236" y="256" width="1" height="60" fill="#a0aec0"/>
+  
+  <!-- Total destacado -->
+  <rect x="176" y="326" width="160" height="40" rx="4" fill="#3182ce"/>
+  <text x="256" y="353" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="16" font-weight="bold">$ FACTURA</text>
+  
+  <!-- Símbolo de conexión/cloud -->
+  <circle cx="366" cy="136" r="35" fill="#48bb78" opacity="0.9"/>
+  <path d="M352 136 Q366 116 380 136" stroke="white" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <circle cx="366" cy="146" r="4" fill="white"/>
+</svg>

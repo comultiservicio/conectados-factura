@@ -705,7 +705,52 @@ APPSYNC_API_KEY=xxxxx
 
 ## 🧪 Testing
 
-### Unit Tests
+### Frontend Testing (React + TypeScript)
+
+#### Unit Tests (Jest)
+```bash
+# Navegar al directorio frontend
+cd frontend
+
+# Instalar dependencias (incluye Jest, Testing Library, Playwright)
+npm install
+
+# Ejecutar tests unitarios
+npm run test
+
+# Ejecutar tests en modo watch (para desarrollo)
+npm run test:watch
+
+# Ejecutar tests con cobertura
+npm run test:coverage
+```
+
+**Estructura de Tests:**
+- `src/pages/__tests__/` - Tests de componentes de páginas
+- `src/services/__tests__/` - Tests de servicios API
+- `src/__tests__/integration/` - Tests de integración
+
+#### E2E Tests (Playwright)
+```bash
+# Ejecutar tests E2E
+npm run e2e
+
+# Ejecutar tests E2E con UI interactiva
+npm run e2e:ui
+
+# Ejecutar tests en modo debug
+npx playwright test --debug
+
+# Generar reporte HTML
+npx playwright show-report
+```
+
+**Estructura de Tests E2E:**
+- `e2e/auth.spec.ts` - Flujo de autenticación
+- `e2e/billing.spec.ts` - Flujo de facturación
+- `e2e/navigation.spec.ts` - Navegación entre páginas
+
+### Unit Tests (Lambda Functions)
 ```bash
 # Lambda functions
 cd lambda/billing
@@ -855,7 +900,7 @@ curl https://api.conectadosfactura.com/
 - **Email 1**: conectados@chathannah.uk
 - **Email 2**: soporteco@chathannah.uk
 
-### 🎯 **Onboarding de Clientes Piloto**
+### 🎯 **Validación de Clientes Piloto**
 
 #### **Timeline de 8 Semanas**
 - **Semana 1-2**: Setup y configuración inicial
@@ -863,10 +908,86 @@ curl https://api.conectadosfactura.com/
 - **Semana 5-6**: Testing offline y sincronización
 - **Semana 7-8**: Validación final y feedback
 
+#### **Lista de Validación (Checklist)**
+
+**1. Autenticación y Acceso**
+- [ ] Registro de nuevo usuario completado
+- [ ] Login con email/password funcional
+- [ ] Recuperación de contraseña operativa
+- [ ] Sesión persistente tras cerrar app
+- [ ] Logout seguro que limpia datos
+
+**2. Facturación Electrónica**
+- [ ] Crear factura A, B y C
+- [ ] Agregar múltiples ítems a factura
+- [ ] Calcular totales e impuestos correctamente
+- [ ] Visualizar lista de facturas emitidas
+- [ ] Filtrar facturas por estado/fecha
+
+**3. Gestión de Stock**
+- [ ] Ver inventario actual
+- [ ] Recibir alertas de stock bajo
+- [ ] Agregar nuevo producto
+- [ ] Registrar entrada/salida de mercadería
+- [ ] Ver historial de movimientos
+
+**4. Procesamiento de Pagos**
+- [ ] Registrar pago en efectivo
+- [ ] Registrar pago con tarjeta
+- [ ] Registrar pago con Mercado Pago
+- [ ] Ver resumen de pagos por período
+- [ ] Marcar factura como pagada
+
+**5. Sincronización Offline**
+- [ ] Trabajar sin conexión a internet
+- [ ] Crear factura en modo offline
+- [ ] Verificar cola de sincronización
+- [ ] Reconectar y sincronizar automáticamente
+- [ ] Validar integridad de datos sincronizados
+
+**6. OCR y Documentos**
+- [ ] Escanear documento con cámara
+- [ ] Subir imagen desde galería
+- [ ] Ver texto extraído del documento
+- [ ] Procesar remito escaneado
+- [ ] Descartar documento procesado
+
+**7. Interfaz de Usuario**
+- [ ] Navegación fluida entre secciones
+- [ ] Diseño responsive en mobile
+- [ ] Feedback visual de acciones
+- [ ] Mensajes de error claros
+- [ ] Tiempos de carga aceptables (< 3s)
+
 #### **Recursos para Clientes Piloto**
 - ✅ Guía de inicio rápido: `PILOT-CUSTOMER-GUIDE.md`
 - ✅ Documentación API: Disponible en `/docs`
 - ✅ Soporte técnico: soporteco@chathannah.uk
+- ✅ Reporte de bugs: `PILOT-BUG-REPORT.md`
+- ✅ Formulario de feedback: `PILOT-FEEDBACK-FORM.md`
+
+#### **Proceso de Reporte de Issues**
+
+**Pasos para reportar problemas:**
+1. **Verificar reproducibilidad**: Documentar pasos exactos
+2. **Capturar evidencia**: Screenshots o videos del issue
+3. **Describir entorno**: Versión app, dispositivo, OS
+4. **Enviar reporte**: Email a soporteco@chathannah.uk
+
+**Template de Reporte:**
+```
+**Tipo**: [Bug/Feature Request/Mejora]
+**Severidad**: [Critical/High/Medium/Low]
+**Descripción**: Descripción detallada
+**Pasos para reproducir**:
+1. Paso 1
+2. Paso 2
+3. Paso 3
+**Resultado esperado**: Qué debería pasar
+**Resultado actual**: Qué pasa realmente
+**Evidencia**: Screenshots/videos adjuntos
+**Entorno**: App v1.0.0, Android 13, Samsung S23
+```
 
 ### 🔄 **Rollback Procedures**
 

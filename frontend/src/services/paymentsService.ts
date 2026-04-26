@@ -6,7 +6,7 @@ export const paymentSchema = z.object({
   invoiceId: z.string().uuid('ID de factura inválido'),
   amount: z.number().positive('El monto debe ser positivo'),
   method: z.enum(['cash', 'credit_card', 'debit_card', 'mercado_pago', 'stripe']),
-  reference?: z.string().optional(),
+  reference: z.string().optional(),
   gatewayData: z.object({
     token: z.string().optional(),
     paymentMethodId: z.string().optional(),

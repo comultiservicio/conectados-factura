@@ -2,7 +2,7 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { Layout, PrivateRoute } from './components';
-import { Login, Dashboard } from './pages';
+import { Login, Dashboard, Billing, Stock, Payments, Sync, Ocr } from './pages';
 import './App.css';
 
 const App: React.FC = () => {
@@ -23,12 +23,11 @@ const App: React.FC = () => {
           }
         >
           <Route path="dashboard" element={<Dashboard />} />
-          {/* Additional routes will be added here */}
-          <Route path="billing" element={<div>Facturación - En desarrollo</div>} />
-          <Route path="stock" element={<div>Stock - En desarrollo</div>} />
-          <Route path="payments" element={<div>Pagos - En desarrollo</div>} />
-          <Route path="sync" element={<div>Sincronización - En desarrollo</div>} />
-          <Route path="ocr" element={<div>OCR - En desarrollo</div>} />
+          <Route path="billing" element={<Billing />} />
+          <Route path="stock" element={<Stock />} />
+          <Route path="payments" element={<Payments />} />
+          <Route path="sync" element={<Sync />} />
+          <Route path="ocr" element={<Ocr />} />
         </Route>
       </Routes>
     </AuthProvider>

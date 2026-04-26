@@ -35,6 +35,8 @@
     "react-native-chart-kit": "^6.12.0",
     "react-native-date-picker": "^4.3.3",
     "react-native-gesture-handler": "^2.13.4",
+    "react-native-image-picker": "^7.0.0",
+    "zod": "^3.22.4",
     "react-native-get-random-values": "^1.9.0",
     "react-native-paper": "^5.11.1",
     "react-native-permissions": "^3.9.3",

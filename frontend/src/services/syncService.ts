@@ -109,9 +109,9 @@ class SyncService {
   }
 
   // Local storage helpers for offline support
-  saveToLocalQueue(item: Omit<QueueItemInput, 'timestamp'> & { timestamp?: string }): void {
+  saveToLocalQueue(item: Omit<SyncQueueItemInput, 'timestamp'> & { timestamp?: string }): void {
     const queue = this.getLocalQueue();
-    const newItem: QueueItemInput = {
+    const newItem: SyncQueueItemInput = {
       ...item,
       timestamp: item.timestamp || new Date().toISOString(),
     };
@@ -119,7 +119,7 @@ class SyncService {
     localStorage.setItem('syncQueue', JSON.stringify(queue));
   }
 
-  getLocalQueue(): QueueItemInput[] {
+  getLocalQueue(): SyncQueueItemInput[] {
     const queueStr = localStorage.getItem('syncQueue');
     if (!queueStr) return [];
     try {
