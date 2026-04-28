@@ -1,0 +1,70 @@
+# Docker Compose para Conectados Factura+
+# Despliegue completo: Frontend + MySQL
+
+version: '3.8'
+
+services:
+  # Servicio de la aplicación web (Node.js + TypeScript)
+  app:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: conectados-factura-app
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_NAME=factura_db
+      - DB_USER=factura_user
+      - DB_PASSWORD=factura_password
+    depends_on:
+      - db
+    networks:
+      - factura-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Servicio de base de datos MySQL 8.0
+  db:
+    image: mysql:8.0
+    container_name: conectados-factura-db
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_password
+      - MYSQL_DATABASE=factura_db
+      - MYSQL_USER=factura_user
+      - MYSQL_PASSWORD=factura_password
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/init:/docker-entrypoint-initdb.d
+    networks:
+      - factura-net
+    restart: unless-stopped
+    command: --default-authentication-plugin=mysql_native_password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_password"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+# Volumen persistente para datos de MySQL
+volumes:
+  mysql_data:
+    driver: local
+
+# Red compartida entre servicios
+networks:
+  factura-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
