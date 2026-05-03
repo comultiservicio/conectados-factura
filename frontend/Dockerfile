@@ -2,7 +2,7 @@
 # Multi-stage build para optimizar tamaño de imagen
 
 # Etapa 1: Build
-FROM node:18-alpine AS builder
+FROM node:22-alpine AS builder
 
 # Crear directorio de trabajo
 WORKDIR /app
@@ -11,7 +11,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Instalar dependencias
-RUN npm ci --only=production=false
+RUN npm install
 
 # Copiar código fuente
 COPY . .
@@ -20,7 +20,7 @@ COPY . .
 RUN npm run build
 
 # Etapa 2: Producción
-FROM node:18-alpine
+FROM node:22-alpine
 
 # Instalar serve para servir archivos estáticos
 RUN npm install -g serve
