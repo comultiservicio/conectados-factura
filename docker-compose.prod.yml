@@ -1,0 +1,210 @@
+# Docker Compose para Conectados Factura+ - Producción Local
+# Servidor: 192.168.15.80
+# 
+# Servicios:
+# - App Node.js (puerto 3000)
+# - Nginx reverse proxy (puerto 80/443)
+# - Prometheus (métricas)
+# - Grafana (dashboards)
+# - Loki (logs)
+
+version: '3.8'
+
+services:
+  # ============================================
+  # APLICACIÓN NODE.JS
+  # ============================================
+  app:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: factura-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DB_PATH=/data/factura.db
+      - JWT_SECRET=${JWT_SECRET}
+      - API_KEY=${API_KEY}
+      - BACKUP_SERVER=${BACKUP_SERVER:-http://192.168.15.80:8080}
+      - REDIS_URL=redis://redis:6379
+      # Email
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
+      - EMAIL_FROM=${EMAIL_FROM}
+      - EMAIL_TO=${EMAIL_TO}
+    volumes:
+      - ./data:/data
+      - ./backups:/backups
+      - ./logs:/logs
+    networks:
+      - factura-net
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      - redis
+      - loki
+
+  # ============================================
+  # NGINX REVERSE PROXY
+  # ============================================
+  nginx:
+    image: nginx:alpine
+    container_name: factura-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ./nginx/www:/var/www/html:ro
+      - ./logs/nginx:/var/log/nginx
+    networks:
+      - factura-net
+    depends_on:
+      - app
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ============================================
+  # REDIS (CACHE DE PERMISOS)
+  # ============================================
+  redis:
+    image: redis:7-alpine
+    container_name: factura-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - factura-net
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+
+  # ============================================
+  # MONITOREO - PROMETHEUS
+  # ============================================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: factura-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - prometheus_data:/prometheus
+    networks:
+      - factura-net
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+
+  # ============================================
+  # MONITOREO - GRAFANA
+  # ============================================
+  grafana:
+    image: grafana/grafana:latest
+    container_name: factura-grafana
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=${GRAFANA_URL:-http://192.168.15.80:3001}
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    networks:
+      - factura-net
+    depends_on:
+      - prometheus
+      - loki
+
+  # ============================================
+  # LOGS - LOKI
+  # ============================================
+  loki:
+    image: grafana/loki:latest
+    container_name: factura-loki
+    restart: unless-stopped
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./monitoring/loki/loki-config.yml:/etc/loki/local-config.yaml:ro
+      - loki_data:/loki
+    networks:
+      - factura-net
+    command: -config.file=/etc/loki/local-config.yaml
+
+  # Promtail para enviar logs a Loki
+  promtail:
+    image: grafana/promtail:latest
+    container_name: factura-promtail
+    restart: unless-stopped
+    volumes:
+      - ./logs:/logs:ro
+      - ./monitoring/promtail/promtail-config.yml:/etc/promtail/config.yml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - factura-net
+    command: -config.file=/etc/promtail/config.yml
+    depends_on:
+      - loki
+
+  # ============================================
+  # CERTBOT (Let's Encrypt)
+  # ============================================
+  certbot:
+    image: certbot/certbot
+    container_name: factura-certbot
+    restart: "no"
+    volumes:
+      - ./nginx/ssl:/etc/letsencrypt
+      - ./nginx/www:/var/www/html
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    networks:
+      - factura-net
+
+# ============================================
+# VOLUMES
+# ============================================
+volumes:
+  redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  loki_data:
+    driver: local
+
+# ============================================
+# NETWORKS
+# ============================================
+networks:
+  factura-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/16
