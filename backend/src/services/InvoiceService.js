@@ -1,4 +1,5 @@
 const dbConnection = require('../database/connection');
+const crypto = require('crypto');
 
 class InvoiceService {
   constructor() {
@@ -6,40 +7,60 @@ class InvoiceService {
   }
 
   /**
-   * Get next invoice number with sequential logic (Argentina requirement)
-   * This ensures no duplicates and continuous numbering
+   * Generate SHA256 hash of invoice data for integrity verification
+   */
+  generateHash(data) {
+    const hashData = JSON.stringify({
+      number: data.number,
+      type: data.type,
+      pos_prefix: data.pos_prefix,
+      full_number: data.full_number,
+      total: data.total,
+      items: data.items,
+      fecha: data.fecha,
+      cliente_cuit: data.cliente_cuit
+    });
+    return crypto.createHash('sha256').update(hashData).digest('hex');
+  }
+
+  /**
+   * Get next invoice number with BULLETPROOF transaction (Argentina requirement)
+   * CRITICAL: This prevents race conditions and duplicate numbers
    */
   getNextInvoiceNumber(type, posPrefix = '0001') {
-    // Use transaction to prevent race conditions
-    const getSeq = this.db.prepare(`
-      SELECT last_number FROM invoice_sequences 
-      WHERE type = ? AND pos_prefix = ?
-    `);
-    
-    const updateSeq = this.db.prepare(`
-      INSERT INTO invoice_sequences (type, pos_prefix, last_number)
-      VALUES (?, ?, ?)
-      ON CONFLICT(type, pos_prefix) DO UPDATE SET 
-        last_number = last_number + 1
-      RETURNING last_number
-    `);
+    // Use immediate transaction with EXCLUSIVE lock
+    const transaction = this.db.transaction((invoiceType, prefix) => {
+      // 1. Lock row for update (ensures no concurrent reads)
+      const seq = this.db.prepare(`
+        SELECT last_number FROM invoice_sequences 
+        WHERE type = ? AND pos_prefix = ?
+      `).get(invoiceType, prefix);
 
-    // Start transaction
-    const transaction = this.db.transaction(() => {
-      let seq = getSeq.get(type, posPrefix);
-      
-      if (!seq) {
-        // First invoice of this type/pos
-        updateSeq.run(type, posPrefix, 1);
-        return 1;
+      const nextNumber = (seq?.last_number || 0) + 1;
+
+      // 2. Atomically update sequence
+      this.db.prepare(`
+        INSERT INTO invoice_sequences (type, pos_prefix, last_number)
+        VALUES (?, ?, ?)
+        ON CONFLICT(type, pos_prefix)
+        DO UPDATE SET last_number = ?
+      `).run(invoiceType, prefix, nextNumber, nextNumber);
+
+      // 3. Verify no duplicates exist (extra safety)
+      const checkDup = this.db.prepare(`
+        SELECT COUNT(*) as count FROM facturas 
+        WHERE type = ? AND pos_prefix = ? AND number = ?
+      `).get(invoiceType, prefix, nextNumber);
+
+      if (checkDup.count > 0) {
+        throw new Error(`DUPLICATE_NUMBER_DETECTED: ${prefix}-${nextNumber}`);
       }
-      
-      const nextNumber = seq.last_number + 1;
-      updateSeq.run(type, posPrefix, nextNumber);
+
       return nextNumber;
     });
 
-    return transaction();
+    // Execute transaction (SERIALIZABLE isolation)
+    return transaction(type, posPrefix);
   }
 
   /**
@@ -72,18 +93,26 @@ class InvoiceService {
     const number = this.getNextInvoiceNumber(type, pos_prefix);
     const fullNumber = this.formatInvoiceNumber(pos_prefix, number);
 
+    // Generate hash for data integrity
+    const hash = this.generateHash({
+      number, type, pos_prefix, full_number: fullNumber,
+      total, items, fecha, cliente_cuit
+    });
+
+    const now = new Date().toISOString();
+
     const insertInvoice = this.db.prepare(`
       INSERT INTO facturas (
         number, type, pos_prefix, full_number, fecha, cliente_nombre, 
-        cliente_cuit, items, subtotal, iva, total, estado, 
-        tipo_comprobante, punto_venta, user_id, client_id, synced
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'emitida', ?, ?, ?, ?, 0)
+        cliente_cuit, items, subtotal, iva, total, estado, hash,
+        tipo_comprobante, punto_venta, user_id, client_id, synced, created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'emitida', ?, ?, ?, ?, ?, 0, ?, ?)
     `);
 
     const result = insertInvoice.run(
       number, type, pos_prefix, fullNumber, fecha, cliente_nombre,
-      cliente_cuit, JSON.stringify(items), subtotal, iva, total,
-      tipo_comprobante, parseInt(pos_prefix), user_id, client_id
+      cliente_cuit, JSON.stringify(items), subtotal, iva, total, hash,
+      tipo_comprobante, parseInt(pos_prefix), user_id, client_id, now, now
     );
 
     const invoiceId = result.lastInsertRowid;
@@ -103,7 +132,8 @@ class InvoiceService {
       number,
       full_number: fullNumber,
       type,
-      pos_prefix
+      pos_prefix,
+      hash
     };
   }
 

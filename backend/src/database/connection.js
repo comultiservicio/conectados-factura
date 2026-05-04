@@ -92,6 +92,7 @@ class DatabaseConnection {
         cae_vencimiento TEXT,
         client_id INTEGER,
         user_id INTEGER,
+        hash TEXT,
         synced INTEGER NOT NULL DEFAULT 0,
         sync_attempts INTEGER NOT NULL DEFAULT 0,
         last_sync_error TEXT,
