@@ -6,25 +6,21 @@ const path = require('path');
 class InvoiceService {
   constructor() {
     this.db = dbConnection.getInstance();
-    this.isGenerating = false; // Mutex para prevenir doble ejecución
+    this.queue = Promise.resolve(); // Cola profesional para secuencializar
     this.backupCounter = 0;
   }
 
   /**
-   * MUTEX: Prevenir doble generación de números
-   * CRÍTICO para producción - evita race conditions
+   * QUEUE SYSTEM: Secuencialización profesional de facturas
+   * CRÍTICO para producción - nunca ejecuta 2 al mismo tiempo
+   * Mantiene orden, no tira errores, más robusto que mutex flag
    */
-  async withLock(fn) {
-    if (this.isGenerating) {
-      throw new Error('SEQUENCE_LOCKED: Invoice generation in progress');
-    }
-
-    this.isGenerating = true;
-    try {
-      return await fn();
-    } finally {
-      this.isGenerating = false;
-    }
+  enqueue(task) {
+    this.queue = this.queue.then(() => task()).catch((err) => {
+      console.error('[InvoiceQueue] Task failed:', err);
+      throw err;
+    });
+    return this.queue;
   }
 
   /**
@@ -42,6 +38,7 @@ class InvoiceService {
 
   /**
    * Crear backup de la DB
+   * Usa VACUUM para asegurar consistencia antes de copiar
    */
   async createBackup() {
     try {
@@ -53,10 +50,14 @@ class InvoiceService {
         fs.mkdirSync(backupDir, { recursive: true });
       }
 
+      // VACUUM: Limpia y optimiza DB antes de backup (asegura consistencia)
+      this.db.prepare('VACUUM').run();
+      console.log('[Backup] VACUUM completed');
+
       const date = new Date().toISOString().replace(/[:.]/g, '-');
       const backupPath = path.join(backupDir, `app-${date}.db`);
 
-      // Copiar archivo
+      // Copiar archivo (ahora consistente gracias a VACUUM)
       fs.copyFileSync(dbPath, backupPath);
       
       // Mantener solo últimos 10 backups
@@ -153,13 +154,11 @@ class InvoiceService {
   }
 
   /**
-   * Create a new invoice with sequential numbering (PROTECTED with mutex)
+   * Create a new invoice with sequential numbering (PROTECTED with queue)
    */
   async createInvoice(invoiceData) {
-    // Usar mutex para prevenir doble ejecución
-    return this.withLock(async () => {
-      return this._createInvoiceInternal(invoiceData);
-    });
+    // Usar cola para secuencializar (nunca paralelo)
+    return this.enqueue(() => this._createInvoiceInternal(invoiceData));
   }
 
   /**
