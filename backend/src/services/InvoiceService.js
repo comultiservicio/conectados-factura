@@ -1,9 +1,91 @@
 const dbConnection = require('../database/connection');
 const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
 
 class InvoiceService {
   constructor() {
     this.db = dbConnection.getInstance();
+    this.isGenerating = false; // Mutex para prevenir doble ejecución
+    this.backupCounter = 0;
+  }
+
+  /**
+   * MUTEX: Prevenir doble generación de números
+   * CRÍTICO para producción - evita race conditions
+   */
+  async withLock(fn) {
+    if (this.isGenerating) {
+      throw new Error('SEQUENCE_LOCKED: Invoice generation in progress');
+    }
+
+    this.isGenerating = true;
+    try {
+      return await fn();
+    } finally {
+      this.isGenerating = false;
+    }
+  }
+
+  /**
+   * Backup automático de la base de datos
+   * Cada 10 facturas y al inicio
+   */
+  async backupIfNeeded() {
+    this.backupCounter++;
+    
+    // Backup cada 10 facturas
+    if (this.backupCounter % 10 === 0) {
+      await this.createBackup();
+    }
+  }
+
+  /**
+   * Crear backup de la DB
+   */
+  async createBackup() {
+    try {
+      const dbPath = path.join(__dirname, '../../database/app.db');
+      const backupDir = path.join(__dirname, '../../database/backups');
+      
+      // Crear directorio si no existe
+      if (!fs.existsSync(backupDir)) {
+        fs.mkdirSync(backupDir, { recursive: true });
+      }
+
+      const date = new Date().toISOString().replace(/[:.]/g, '-');
+      const backupPath = path.join(backupDir, `app-${date}.db`);
+
+      // Copiar archivo
+      fs.copyFileSync(dbPath, backupPath);
+      
+      // Mantener solo últimos 10 backups
+      const files = fs.readdirSync(backupDir)
+        .filter(f => f.startsWith('app-') && f.endsWith('.db'))
+        .map(f => ({
+          name: f,
+          path: path.join(backupDir, f),
+          stat: fs.statSync(path.join(backupDir, f))
+        }))
+        .sort((a, b) => b.stat.mtime - a.stat.mtime);
+
+      // Eliminar backups viejos
+      if (files.length > 10) {
+        files.slice(10).forEach(f => {
+          try {
+            fs.unlinkSync(f.path);
+          } catch (e) {
+            console.error('[Backup] Error deleting old backup:', e);
+          }
+        });
+      }
+
+      console.log('[Backup] Created:', backupPath);
+      return { success: true, path: backupPath };
+    } catch (error) {
+      console.error('[Backup] Error:', error);
+      return { success: false, error: error.message };
+    }
   }
 
   /**
@@ -71,9 +153,19 @@ class InvoiceService {
   }
 
   /**
-   * Create a new invoice with sequential numbering
+   * Create a new invoice with sequential numbering (PROTECTED with mutex)
    */
   async createInvoice(invoiceData) {
+    // Usar mutex para prevenir doble ejecución
+    return this.withLock(async () => {
+      return this._createInvoiceInternal(invoiceData);
+    });
+  }
+
+  /**
+   * Internal invoice creation (mutex protected)
+   */
+  async _createInvoiceInternal(invoiceData) {
     const {
       type = 'B',
       pos_prefix = '0001',
@@ -126,6 +218,9 @@ class InvoiceService {
       pos_prefix,
       full_number: fullNumber
     });
+
+    // Trigger backup if needed (every 10 invoices)
+    this.backupIfNeeded();
 
     return {
       id: invoiceId,
