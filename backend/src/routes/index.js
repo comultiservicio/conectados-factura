@@ -4,6 +4,7 @@ const invoiceRoutes = require('./invoices');
 const syncRoutes = require('./sync');
 const dashboardRoutes = require('./dashboard');
 const versionRoutes = require('./version');
+const debugRoutes = require('./debug');
 
 const router = express.Router();
 
@@ -21,6 +22,9 @@ router.use('/sync', syncRoutes);
 
 // Version endpoint for auto-update
 router.use('/version', versionRoutes);
+
+// Debug endpoints (production diagnostics)
+router.use('/debug', debugRoutes);
 
 // Keep old facturas route for backwards compatibility
 router.use('/facturas', invoiceRoutes);
