@@ -1,0 +1,104 @@
+.loading-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  gap: 16px;
+  background: var(--bg-primary, #ffffff);
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border-color, #e5e7eb);
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-screen p {
+  color: var(--text-secondary, #6b7280);
+  font-size: 14px;
+}
+
+/* Access Denied */
+.access-denied {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 200px);
+  padding: 24px;
+}
+
+.access-denied-content {
+  text-align: center;
+  max-width: 400px;
+  padding: 48px;
+  background: var(--card-bg, #ffffff);
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--card-border, #e5e7eb);
+}
+
+.access-denied-icon {
+  font-size: 64px;
+  display: block;
+  margin-bottom: 24px;
+}
+
+.access-denied-content h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary, #111827);
+  margin: 0 0 12px 0;
+}
+
+.access-denied-content p {
+  color: var(--text-secondary, #6b7280);
+  margin: 0 0 8px 0;
+  font-size: 14px;
+}
+
+.access-denied-environment {
+  margin-top: 16px !important;
+  padding-top: 16px;
+  border-top: 1px solid var(--card-border, #e5e7eb);
+}
+
+.access-denied-environment strong {
+  color: #ef4444;
+  text-transform: uppercase;
+}
+
+/* Dark mode */
+[data-theme="dark"] .loading-screen {
+  background: var(--bg-primary, #1f2937);
+}
+
+[data-theme="dark"] .loading-screen p {
+  color: var(--text-secondary, #9ca3af);
+}
+
+[data-theme="dark"] .access-denied-content {
+  background: var(--card-bg, #1f2937);
+  border-color: var(--card-border, #374151);
+}
+
+[data-theme="dark"] .access-denied-content h2 {
+  color: var(--text-primary, #f9fafb);
+}
+
+[data-theme="dark"] .access-denied-content p {
+  color: var(--text-secondary, #9ca3af);
+}
+
+[data-theme="dark"] .access-denied-environment {
+  border-color: var(--card-border, #374151);
+}

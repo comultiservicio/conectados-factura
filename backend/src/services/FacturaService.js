@@ -1,222 +1,110 @@
-/**
- * Servicio de Facturas - CRUD con SQLite
- * Reemplaza operaciones DynamoDB
- * @module services/FacturaService
- */
-
-const db = require('../database/connection');
+const dbConnection = require('../database/connection');
 
 class FacturaService {
   constructor() {
-    this.db = db.getInstance();
+    this.db = dbConnection.getInstance();
   }
 
-  /**
-   * Crea una nueva factura
-   * @param {Object} factura - Datos de la factura
-   * @returns {Object} Factura creada con ID
-   */
-  async create(factura) {
+  list() {
     const stmt = this.db.prepare(`
-      INSERT INTO facturas (numero, cliente, cuit, total, items, estado, vendedor_id)
-      VALUES (@numero, @cliente, @cuit, @total, @items, @estado, @vendedor_id)
+      SELECT id, numero, fecha, cliente_nombre, cliente_cuit, items, subtotal, iva, total, estado, user_id, created_at, updated_at
+      FROM facturas
+      ORDER BY id DESC
+    `);
+    return stmt.all().map(this.parseFacturaRow);
+  }
+
+  getById(id) {
+    const stmt = this.db.prepare(`
+      SELECT id, numero, fecha, cliente_nombre, cliente_cuit, items, subtotal, iva, total, estado, user_id, created_at, updated_at
+      FROM facturas
+      WHERE id = ?
+    `);
+    const row = stmt.get(id);
+    return row ? this.parseFacturaRow(row) : null;
+  }
+
+  create(payload) {
+    const stmt = this.db.prepare(`
+      INSERT INTO facturas (
+        numero, fecha, cliente_nombre, cliente_cuit, items, subtotal, iva, total, estado, user_id, created_at, updated_at
+      ) VALUES (
+        @numero, @fecha, @cliente_nombre, @cliente_cuit, @items, @subtotal, @iva, @total, @estado, @user_id, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+      )
     `);
 
     const result = stmt.run({
-      numero: factura.numero,
-      cliente: factura.cliente,
-      cuit: factura.cuit || null,
-      total: factura.total,
-      items: JSON.stringify(factura.items),
-      estado: factura.estado || 'pendiente',
-      vendedor_id: factura.vendedor_id
+      numero: payload.numero,
+      fecha: payload.fecha,
+      cliente_nombre: payload.cliente_nombre,
+      cliente_cuit: payload.cliente_cuit || null,
+      items: JSON.stringify(payload.items || []),
+      subtotal: Number(payload.subtotal || 0),
+      iva: Number(payload.iva || 0),
+      total: Number(payload.total || 0),
+      estado: payload.estado || 'borrador',
+      user_id: payload.user_id || null
     });
 
-    return this.findById(result.lastInsertRowid);
+    return this.getById(result.lastInsertRowid);
   }
 
-  /**
-   * Busca factura por ID
-   * @param {number} id - ID de la factura
-   * @returns {Object|null}
-   */
-  findById(id) {
-    const stmt = this.db.prepare(`
-      SELECT f.*, u.name as vendedor_name, u.email as vendedor_email
-      FROM facturas f
-      LEFT JOIN users u ON f.vendedor_id = u.id
-      WHERE f.id = ?
-    `);
-    
-    const factura = stmt.get(id);
-    if (factura) {
-      factura.items = JSON.parse(factura.items);
-    }
-    return factura || null;
-  }
-
-  /**
-   * Lista facturas con filtros y paginación
-   * @param {Object} filters - Filtros de búsqueda
-   * @param {Object} pagination - Opciones de paginación
-   * @returns {Object} { data, total, page, limit }
-   */
-  findAll(filters = {}, pagination = { page: 1, limit: 20 }) {
-    const { page, limit } = pagination;
-    const offset = (page - 1) * limit;
-
-    let whereClause = 'WHERE 1=1';
-    const params = [];
-
-    if (filters.cliente) {
-      whereClause += ' AND f.cliente LIKE ?';
-      params.push(`%${filters.cliente}%`);
+  update(id, payload) {
+    const existing = this.getById(id);
+    if (!existing) {
+      return null;
     }
 
-    if (filters.estado) {
-      whereClause += ' AND f.estado = ?';
-      params.push(filters.estado);
-    }
-
-    if (filters.vendedor_id) {
-      whereClause += ' AND f.vendedor_id = ?';
-      params.push(filters.vendedor_id);
-    }
-
-    if (filters.fecha_desde && filters.fecha_hasta) {
-      whereClause += ' AND f.fecha BETWEEN ? AND ?';
-      params.push(filters.fecha_desde, filters.fecha_hasta);
-    }
-
-    // Contar total
-    const countStmt = this.db.prepare(`
-      SELECT COUNT(*) as total FROM facturas f ${whereClause}
-    `);
-    const { total } = countStmt.get(...params);
-
-    // Obtener datos
-    const dataStmt = this.db.prepare(`
-      SELECT f.*, u.name as vendedor_name
-      FROM facturas f
-      LEFT JOIN users u ON f.vendedor_id = u.id
-      ${whereClause}
-      ORDER BY f.fecha DESC
-      LIMIT ? OFFSET ?
-    `);
-
-    const data = dataStmt.all(...params, limit, offset);
-    
-    // Parsear items JSON
-    data.forEach(f => {
-      f.items = JSON.parse(f.items);
-    });
-
-    return {
-      data,
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit)
+    const merged = {
+      ...existing,
+      ...payload,
+      items: payload.items !== undefined ? payload.items : existing.items
     };
-  }
-
-  /**
-   * Actualiza una factura
-   * @param {number} id - ID de la factura
-   * @param {Object} updates - Campos a actualizar
-   * @returns {Object} Factura actualizada
-   */
-  async update(id, updates) {
-    const allowedFields = ['cliente', 'cuit', 'total', 'items', 'estado', 'sync_status'];
-    const fields = [];
-    const values = [];
-
-    for (const [key, value] of Object.entries(updates)) {
-      if (allowedFields.includes(key)) {
-        fields.push(`${key} = ?`);
-        values.push(key === 'items' ? JSON.stringify(value) : value);
-      }
-    }
-
-    if (fields.length === 0) {
-      throw new Error('No hay campos válidos para actualizar');
-    }
-
-    values.push(id);
 
     const stmt = this.db.prepare(`
-      UPDATE facturas 
-      SET ${fields.join(', ')}
-      WHERE id = ?
+      UPDATE facturas
+      SET numero = @numero,
+          fecha = @fecha,
+          cliente_nombre = @cliente_nombre,
+          cliente_cuit = @cliente_cuit,
+          items = @items,
+          subtotal = @subtotal,
+          iva = @iva,
+          total = @total,
+          estado = @estado,
+          user_id = @user_id,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = @id
     `);
 
-    stmt.run(...values);
-    return this.findById(id);
-  }
-
-  /**
-   * Elimina una factura (soft delete cambiando estado)
-   * @param {number} id - ID de la factura
-   */
-  async delete(id) {
-    const stmt = this.db.prepare(`
-      UPDATE facturas 
-      SET estado = 'anulada', sync_status = 'pending'
-      WHERE id = ?
-    `);
-    
-    stmt.run(id);
-    return { id, deleted: true };
-  }
-
-  /**
-   * Obtiene estadísticas de facturación
-   * @param {Object} filters - Filtros de fecha
-   * @returns {Object} Estadísticas
-   */
-  getStats(filters = {}) {
-    let whereClause = 'WHERE estado != "anulada"';
-    const params = [];
-
-    if (filters.fecha_desde && filters.fecha_hasta) {
-      whereClause += ' AND fecha BETWEEN ? AND ?';
-      params.push(filters.fecha_desde, filters.fecha_hasta);
-    }
-
-    const statsStmt = this.db.prepare(`
-      SELECT 
-        COUNT(*) as total_facturas,
-        SUM(total) as total_facturado,
-        AVG(total) as promedio_factura,
-        COUNT(CASE WHEN estado = 'pendiente' THEN 1 END) as pendientes,
-        COUNT(CASE WHEN estado = 'pagada' THEN 1 END) as pagadas
-      FROM facturas
-      ${whereClause}
-    `);
-
-    return statsStmt.get(...params);
-  }
-
-  /**
-   * Marca facturas para sincronización
-   * @param {number[]} ids - IDs de facturas a marcar
-   * @param {string} status - Estado de sync
-   */
-  async markForSync(ids, status = 'pending') {
-    const stmt = this.db.prepare(`
-      UPDATE facturas 
-      SET sync_status = ?
-      WHERE id = ?
-    `);
-
-    const updateMany = this.db.transaction((ids) => {
-      for (const id of ids) {
-        stmt.run(status, id);
-      }
+    stmt.run({
+      id: Number(id),
+      numero: merged.numero,
+      fecha: merged.fecha,
+      cliente_nombre: merged.cliente_nombre,
+      cliente_cuit: merged.cliente_cuit || null,
+      items: JSON.stringify(merged.items || []),
+      subtotal: Number(merged.subtotal || 0),
+      iva: Number(merged.iva || 0),
+      total: Number(merged.total || 0),
+      estado: merged.estado || 'borrador',
+      user_id: merged.user_id || null
     });
 
-    updateMany(ids);
-    return { updated: ids.length };
+    return this.getById(id);
+  }
+
+  remove(id) {
+    const stmt = this.db.prepare('DELETE FROM facturas WHERE id = ?');
+    const result = stmt.run(id);
+    return result.changes > 0;
+  }
+
+  parseFacturaRow(row) {
+    return {
+      ...row,
+      items: row.items ? JSON.parse(row.items) : []
+    };
   }
 }
 

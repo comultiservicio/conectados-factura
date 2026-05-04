@@ -1,166 +1,254 @@
-/**
- * Conexión a SQLite - Migración desde DynamoDB
- * @module database/connection
- */
-
-const Database = require('better-sqlite3');
-const path = require('path');
 const fs = require('fs');
+const path = require('path');
+const Database = require('better-sqlite3');
+const config = require('../config');
 
 class DatabaseConnection {
   constructor() {
     this.db = null;
-    this.dbPath = process.env.DB_PATH || path.join(__dirname, '../../data/factura.db');
   }
 
-  /**
-   * Inicializa la conexión a la base de datos
-   */
   connect() {
-    try {
-      // Asegurar que el directorio existe
-      const dir = path.dirname(this.dbPath);
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
-      }
-
-      // Conectar a SQLite con mejoras de rendimiento
-      this.db = new Database(this.dbPath, {
-        verbose: process.env.NODE_ENV === 'development' ? console.log : null,
-        fileMustExist: false,
-      });
-
-      // Activar WAL mode para mejor concurrencia
-      this.db.pragma('journal_mode = WAL');
-      this.db.pragma('foreign_keys = ON');
-      this.db.pragma('synchronous = NORMAL');
-      this.db.pragma('cache_size = 10000');
-
-      console.log('✅ Conectado a SQLite:', this.dbPath);
-      return this.db;
-    } catch (error) {
-      console.error('❌ Error conectando a SQLite:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Cierra la conexión
-   */
-  close() {
     if (this.db) {
-      this.db.close();
-      console.log('🔒 Conexión SQLite cerrada');
+      return this.db;
     }
+
+    const dbPath = config.dbPath;
+    const dbDir = path.dirname(dbPath);
+
+    if (!fs.existsSync(dbDir)) {
+      fs.mkdirSync(dbDir, { recursive: true });
+    }
+
+    this.db = new Database(dbPath);
+    this.db.pragma('foreign_keys = ON');
+    this.db.pragma('journal_mode = WAL');
+    this.createTables();
+
+    return this.db;
   }
 
-  /**
-   * Ejecuta migraciones iniciales
-   */
-  async runMigrations() {
-    const migrations = [
-      // Tabla de usuarios
-      `
+  createTables() {
+    this.db.exec(`
       CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         email TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL,
-        role TEXT NOT NULL CHECK(role IN ('admin', 'vendedor', 'chofer', 'contador')),
+        password_hash TEXT NOT NULL,
         name TEXT NOT NULL,
-        active BOOLEAN DEFAULT 1,
-        last_login DATETIME,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        phone TEXT,
+        avatar TEXT,
+        role TEXT NOT NULL DEFAULT 'vendedor',
+        active INTEGER NOT NULL DEFAULT 1,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
       );
-      CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
-      CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
-      `,
 
-      // Tabla de facturas (reemplaza DynamoDB)
-      `
+      CREATE TABLE IF NOT EXISTS roles (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT UNIQUE NOT NULL,
+        description TEXT,
+        permissions TEXT
+      );
+
+      CREATE TABLE IF NOT EXISTS user_roles (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        role_id INTEGER NOT NULL,
+        UNIQUE(user_id, role_id),
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
+      );
+
+      CREATE TABLE IF NOT EXISTS clients (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        razon_social TEXT NOT NULL,
+        cuit TEXT UNIQUE,
+        direccion TEXT,
+        telefono TEXT,
+        email TEXT,
+        tipo_responsable TEXT CHECK(tipo_responsable IN ('monotributista', 'responsable_inscripto', 'consumidor_final', 'exento')),
+        active INTEGER NOT NULL DEFAULT 1,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
+
       CREATE TABLE IF NOT EXISTS facturas (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        numero TEXT UNIQUE NOT NULL,
-        cliente TEXT NOT NULL,
-        cuit TEXT,
-        total REAL NOT NULL,
-        items TEXT NOT NULL, -- JSON array
-        estado TEXT DEFAULT 'pendiente' CHECK(estado IN ('pendiente', 'pagada', 'anulada')),
-        vendedor_id INTEGER NOT NULL,
-        fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        sync_status TEXT DEFAULT 'synced' CHECK(sync_status IN ('synced', 'pending', 'error')),
-        FOREIGN KEY (vendedor_id) REFERENCES users(id)
+        number INTEGER NOT NULL,
+        type TEXT NOT NULL CHECK(type IN ('A', 'B', 'C', 'NC', 'ND')),
+        pos_prefix TEXT DEFAULT '0001',
+        full_number TEXT UNIQUE NOT NULL,
+        fecha TEXT NOT NULL,
+        cliente_nombre TEXT NOT NULL,
+        cliente_cuit TEXT,
+        items TEXT NOT NULL,
+        subtotal REAL NOT NULL DEFAULT 0,
+        iva REAL NOT NULL DEFAULT 0,
+        total REAL NOT NULL DEFAULT 0,
+        estado TEXT NOT NULL DEFAULT 'borrador',
+        tipo_comprobante TEXT CHECK(tipo_comprobante IN ('factura_a', 'factura_b', 'factura_c', 'nota_credito', 'nota_debito', 'remito')),
+        punto_venta INTEGER,
+        cae TEXT,
+        cae_vencimiento TEXT,
+        client_id INTEGER,
+        user_id INTEGER,
+        synced INTEGER NOT NULL DEFAULT 0,
+        sync_attempts INTEGER NOT NULL DEFAULT 0,
+        last_sync_error TEXT,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id),
+        FOREIGN KEY (client_id) REFERENCES clients(id)
       );
-      CREATE INDEX IF NOT EXISTS idx_facturas_numero ON facturas(numero);
-      CREATE INDEX IF NOT EXISTS idx_facturas_fecha ON facturas(fecha);
-      CREATE INDEX IF NOT EXISTS idx_facturas_vendedor ON facturas(vendedor_id);
-      CREATE INDEX IF NOT EXISTS idx_facturas_sync ON facturas(sync_status);
-      `,
 
-      // Tabla de productos
-      `
+      CREATE TABLE IF NOT EXISTS invoice_sequences (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        type TEXT NOT NULL CHECK(type IN ('A', 'B', 'C', 'NC', 'ND')),
+        pos_prefix TEXT NOT NULL DEFAULT '0001',
+        last_number INTEGER NOT NULL DEFAULT 0,
+        UNIQUE(type, pos_prefix)
+      );
+
+      CREATE TABLE IF NOT EXISTS expenses (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        fecha TEXT NOT NULL,
+        descripcion TEXT NOT NULL,
+        monto REAL NOT NULL,
+        categoria TEXT CHECK(categoria IN ('combustible', 'peaje', 'comida', 'mantenimiento', 'otro')) NOT NULL DEFAULT 'otro',
+        comprobante_foto TEXT,
+        user_id INTEGER,
+        trip_id INTEGER,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id)
+      );
+
       CREATE TABLE IF NOT EXISTS productos (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         codigo TEXT UNIQUE NOT NULL,
         nombre TEXT NOT NULL,
         precio REAL NOT NULL,
-        stock INTEGER DEFAULT 0,
-        categoria TEXT,
-        activo BOOLEAN DEFAULT 1,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        iva_rate REAL NOT NULL DEFAULT 21,
+        stock INTEGER NOT NULL DEFAULT 0,
+        active INTEGER NOT NULL DEFAULT 1
       );
-      CREATE INDEX IF NOT EXISTS idx_productos_codigo ON productos(codigo);
-      `,
 
-      // Tabla de sync offline
-      `
       CREATE TABLE IF NOT EXISTS sync_queue (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        table_name TEXT NOT NULL,
-        operation TEXT NOT NULL CHECK(operation IN ('INSERT', 'UPDATE', 'DELETE')),
-        data TEXT NOT NULL,
-        retry_count INTEGER DEFAULT 0,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        processed_at DATETIME
+        entity TEXT NOT NULL,
+        entity_id INTEGER NOT NULL,
+        action TEXT NOT NULL CHECK(action IN ('insert', 'update', 'delete')),
+        data TEXT,
+        synced INTEGER NOT NULL DEFAULT 0,
+        sync_attempts INTEGER NOT NULL DEFAULT 0,
+        last_error TEXT,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
       );
-      CREATE INDEX IF NOT EXISTS idx_sync_queue_created ON sync_queue(created_at);
-      `,
 
-      // Triggers para updated_at
-      `
-      CREATE TRIGGER IF NOT EXISTS update_users_timestamp 
-      AFTER UPDATE ON users
-      BEGIN
-        UPDATE users SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
-      END;
-      `,
-      `
-      CREATE TRIGGER IF NOT EXISTS update_facturas_timestamp 
-      AFTER UPDATE ON facturas
-      BEGIN
-        UPDATE facturas SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
-      END;
-      `
-    ];
+      CREATE TABLE IF NOT EXISTS sync_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        table_name TEXT NOT NULL,
+        record_id INTEGER NOT NULL,
+        action TEXT CHECK(action IN ('insert', 'update', 'delete')) NOT NULL,
+        payload TEXT,
+        synced INTEGER NOT NULL DEFAULT 0,
+        sync_attempts INTEGER NOT NULL DEFAULT 0,
+        last_error TEXT,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
 
-    for (const migration of migrations) {
-      this.db.exec(migration);
-    }
+      CREATE TABLE IF NOT EXISTS settings (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        key TEXT UNIQUE NOT NULL,
+        value TEXT,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
 
-    console.log('✅ Migraciones completadas');
+      CREATE TABLE IF NOT EXISTS licenses (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        license_key TEXT UNIQUE NOT NULL,
+        client_name TEXT,
+        activated_at TEXT,
+        expires_at TEXT,
+        status TEXT NOT NULL DEFAULT 'trial' CHECK(status IN ('trial', 'active', 'expired', 'revoked')),
+        machine_id TEXT
+      );
+    `);
+
+    this.ensureColumn('users', 'phone', 'TEXT');
+    this.ensureColumn('users', 'avatar', 'TEXT');
+    this.ensureColumn('facturas', 'tipo_comprobante', "TEXT CHECK(tipo_comprobante IN ('factura_a', 'factura_b', 'factura_c', 'nota_credito', 'nota_debito', 'remito'))");
+    this.ensureColumn('facturas', 'punto_venta', 'INTEGER');
+    this.ensureColumn('facturas', 'cae', 'TEXT');
+    this.ensureColumn('facturas', 'cae_vencimiento', 'TEXT');
+    this.ensureColumn('facturas', 'client_id', 'INTEGER');
+
+    this.seedRoles();
   }
 
-  /**
-   * Retorna la instancia de la base de datos
-   */
+  ensureColumn(tableName, columnName, definition) {
+    const columns = this.db.prepare(`PRAGMA table_info(${tableName})`).all();
+    const hasColumn = columns.some((column) => column.name === columnName);
+    if (!hasColumn) {
+      this.db.exec(`ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${definition}`);
+    }
+  }
+
+  seedRoles() {
+    const roles = [
+      { name: 'superadmin', description: 'Control total del sistema', permissions: '{"all":true}' },
+      { name: 'admin', description: 'Administracion general', permissions: '{"manage_users":true,"manage_settings":true}' },
+      { name: 'contador', description: 'Gestion contable y reportes', permissions: '{"invoices":true,"reports":true}' },
+      { name: 'vendedor', description: 'Carga y gestion de ventas', permissions: '{"sales":true}' },
+      { name: 'chofer', description: 'Registro logistico y entregas', permissions: '{"deliveries":true}' },
+      { name: 'tecnico', description: 'Soporte tecnico y mantenimiento', permissions: '{"maintenance":true}' }
+    ];
+
+    const insertRole = this.db.prepare(`
+      INSERT OR IGNORE INTO roles (name, description, permissions)
+      VALUES (?, ?, ?)
+    `);
+
+    const insertMany = this.db.transaction((items) => {
+      items.forEach((role) => {
+        insertRole.run(role.name, role.description, role.permissions);
+      });
+    });
+
+    insertMany(roles);
+
+    // Initialize invoice sequences for default POS
+    const sequences = [
+      ['A', '0001', 0],
+      ['B', '0001', 0],
+      ['C', '0001', 0]
+    ];
+    const insertSeq = this.db.prepare(`
+      INSERT OR IGNORE INTO invoice_sequences (type, pos_prefix, last_number)
+      VALUES (?, ?, ?)
+    `);
+    sequences.forEach(([type, prefix, num]) => insertSeq.run(type, prefix, num));
+
+    // Create default admin user (admin@local.com / admin123)
+    const bcrypt = require('bcryptjs');
+    const defaultEmail = 'admin@local.com';
+    const existingAdmin = this.db.prepare('SELECT id FROM users WHERE email = ?').get(defaultEmail);
+    
+    if (!existingAdmin) {
+      const passwordHash = bcrypt.hashSync('admin123', 10);
+      this.db.prepare(`
+        INSERT INTO users (email, password_hash, name, role, active, created_at, updated_at)
+        VALUES (?, ?, ?, ?, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+      `).run(defaultEmail, passwordHash, 'Administrador', 'superadmin');
+      console.log('✅ Default admin user created: admin@local.com / admin123');
+    }
+  }
+
   getInstance() {
     if (!this.db) {
-      throw new Error('Base de datos no inicializada. Llama a connect() primero.');
+      return this.connect();
     }
     return this.db;
   }
 }
 
-// Singleton
 module.exports = new DatabaseConnection();

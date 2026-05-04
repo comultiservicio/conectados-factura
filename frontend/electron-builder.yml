@@ -1,0 +1,50 @@
+appId: com.conectados.factura
+productName: Conectados Factura+
+copyright: Copyright © 2026 Conectados
+directories:
+  output: release
+  buildResources: assets
+files:
+  - dist/**/*
+  - main.cjs
+  - preload.cjs
+  - assets/**/*
+extraResources:
+  - from: assets
+    to: assets
+asar: true
+compression: maximum
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+  icon: assets/icon.png
+  signAndEditExecutable: false
+  verifyUpdateCodeSignature: false
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Conectados Factura+
+  include: assets/installer.nsh
+  license: assets/LICENSE.txt
+mac:
+  target:
+    - target: dmg
+      arch:
+        - x64
+        - arm64
+  icon: assets/icons/mac/icon_512x512.png
+  category: public.app-category.business
+linux:
+  target:
+    - target: AppImage
+      arch:
+        - x64
+  icon: assets/icons
+  category: Office
+  maintainer: Conectados <conectados@chathannah.uk>
+  synopsis: Sistema de facturación electrónica y gestión de stock
+  description: Conectados Factura+ - Sistema híbrido de facturación electrónica con soporte offline

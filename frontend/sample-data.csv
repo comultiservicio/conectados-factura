@@ -1,0 +1,17 @@
+Fecha,Descripcion,Monto,Tipo
+2026-04-27,Venta producto A,1500,Ingreso
+2026-04-27,Compra insumos,500,Egreso
+2026-04-28,Servicio tecnico,2000,Ingreso
+2026-04-28,Pago alquiler,800,Egreso
+2026-04-29,Venta producto B,2500,Ingreso
+2026-04-29,Sueldo empleado,1200,Egreso
+2026-04-30,Consultoria,1800,Ingreso
+2026-04-30,Servicio internet,150,Egreso
+2026-05-01,Venta producto C,3200,Ingreso
+2026-05-01,Compra materiales,900,Egreso
+2026-05-02,Mantenimiento equipo,400,Egreso
+2026-05-02,Venta servicio D,2100,Ingreso
+2026-05-03,Pago impuestos,600,Egreso
+2026-05-03,Venta mayorista,4500,Ingreso
+2026-05-04,Compra papelaria,120,Egreso
+2026-05-04,Servicio especial,2800,Ingreso
