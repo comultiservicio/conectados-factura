@@ -8,8 +8,6 @@ import {
   CartesianGrid, 
   Tooltip, 
   ResponsiveContainer,
-  LineChart,
-  Line,
   Area,
   AreaChart
 } from 'recharts';
@@ -54,7 +52,6 @@ const Income: React.FC = () => {
   const { showSuccess, showError } = useAlerts();
   const [incomes, setIncomes] = useState<Income[]>(mockData);
   const [showForm, setShowForm] = useState(false);
-  const [filterPeriod, setFilterPeriod] = useState<'day' | 'week' | 'month' | 'year'>('month');
   const [errors, setErrors] = useState<Record<string, string>>({});
   
   const [formData, setFormData] = useState<Partial<IncomeFormData>>({
@@ -207,7 +204,7 @@ const Income: React.FC = () => {
                 stroke="#6b7280"
               />
               <Tooltip 
-                formatter={(value: number) => formatCurrency(value)}
+                formatter={(value: any) => formatCurrency(Number(value) || 0)}
                 labelFormatter={(label) => new Date(label).toLocaleDateString('es-AR')}
               />
               <Area 
@@ -228,7 +225,7 @@ const Income: React.FC = () => {
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
               <XAxis type="number" tickFormatter={(v) => `$${(v/1000).toFixed(0)}k`} stroke="#6b7280" />
               <YAxis type="category" dataKey="name" stroke="#6b7280" width={80} />
-              <Tooltip formatter={(value: number) => formatCurrency(value)} />
+              <Tooltip formatter={(value: any) => formatCurrency(Number(value) || 0)} />
               <Bar dataKey="value" radius={[0, 4, 4, 0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -245,7 +242,7 @@ const Income: React.FC = () => {
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
               <XAxis dataKey="name" stroke="#6b7280" />
               <YAxis tickFormatter={(v) => `$${(v/1000).toFixed(0)}k`} stroke="#6b7280" />
-              <Tooltip formatter={(value: number) => formatCurrency(value)} />
+              <Tooltip formatter={(value: any) => formatCurrency(Number(value) || 0)} />
               <Bar dataKey="value" fill="#3b82f6" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>

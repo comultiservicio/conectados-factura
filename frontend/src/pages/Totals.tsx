@@ -7,11 +7,11 @@ import {
   CartesianGrid, 
   Tooltip, 
   ResponsiveContainer,
-  LineChart,
-  Line,
   ComposedChart,
+  AreaChart,
   Area,
-  Legend
+  Legend,
+  Line
 } from 'recharts';
 import { 
   TrendingUp, 
@@ -23,7 +23,6 @@ import {
   ArrowDownRight
 } from 'lucide-react';
 import { StatCard, ChartContainer, Table } from '../components/ui';
-import { useAlerts } from '../components';
 import './Totals.css';
 
 // Mock data - in real app this would come from API
@@ -55,7 +54,6 @@ const mockExpenseData = [
 type PeriodFilter = 'day' | 'week' | 'month' | 'quarter' | 'year';
 
 const Totals: React.FC = () => {
-  const { showSuccess } = useAlerts();
   const [period, setPeriod] = useState<PeriodFilter>('month');
   const [selectedDate, setSelectedDate] = useState<string>(
     new Date().toISOString().split('T')[0]
@@ -268,7 +266,7 @@ const Totals: React.FC = () => {
                 stroke="#6b7280"
               />
               <Tooltip 
-                formatter={(value: number) => formatCurrency(value)}
+                formatter={(value: any) => formatCurrency(Number(value) || 0)}
                 labelFormatter={(label) => new Date(label).toLocaleDateString('es-AR')}
               />
               <Legend />
@@ -285,7 +283,7 @@ const Totals: React.FC = () => {
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" horizontal={false} />
               <XAxis type="number" tickFormatter={(v) => `$${(v/1000).toFixed(0)}k`} stroke="#6b7280" />
               <YAxis type="category" dataKey="name" stroke="#6b7280" width={80} />
-              <Tooltip formatter={(value: number) => formatCurrency(value)} />
+              <Tooltip formatter={(value: any) => formatCurrency(Number(value) || 0)} />
               <Bar dataKey="value" radius={[0, 4, 4, 0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -327,7 +325,7 @@ const Totals: React.FC = () => {
                 stroke="#6b7280"
               />
               <Tooltip 
-                formatter={(value: number) => formatCurrency(value)}
+                formatter={(value: any) => formatCurrency(Number(value) || 0)}
                 labelFormatter={(label) => new Date(label).toLocaleDateString('es-AR')}
               />
               <Area 

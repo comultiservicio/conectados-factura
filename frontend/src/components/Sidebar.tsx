@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { useAuth, Environment, EnvironmentVisibility } from '../context/AuthContext';
+import { useAuth, Environment } from '../context/AuthContext';
 import './Sidebar.css';
 
 interface MenuSection {

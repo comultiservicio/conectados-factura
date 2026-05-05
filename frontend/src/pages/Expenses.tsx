@@ -213,7 +213,7 @@ const Expenses: React.FC = () => {
                 stroke="#6b7280"
               />
               <Tooltip 
-                formatter={(value: number) => formatCurrency(value)}
+                formatter={(value: any) => formatCurrency(Number(value) || 0)}
                 labelFormatter={(label) => new Date(label).toLocaleDateString('es-AR')}
               />
               <Area 
@@ -240,11 +240,11 @@ const Expenses: React.FC = () => {
                 paddingAngle={5}
                 dataKey="value"
               >
-                {categoryData.map((entry, index) => (
+                {categoryData.map((_, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip formatter={(value: number) => formatCurrency(value)} />
+              <Tooltip formatter={(value: any) => formatCurrency(Number(value) || 0)} />
             </PieChart>
           </ResponsiveContainer>
           <div className="pie-legend">
@@ -268,7 +268,7 @@ const Expenses: React.FC = () => {
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
               <XAxis dataKey="name" stroke="#6b7280" fontSize={12} />
               <YAxis tickFormatter={(v) => `$${(v/1000).toFixed(0)}k`} stroke="#6b7280" />
-              <Tooltip formatter={(value: number) => formatCurrency(value)} />
+              <Tooltip formatter={(value: any) => formatCurrency(Number(value) || 0)} />
               <Bar dataKey="value" fill="#ef4444" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>

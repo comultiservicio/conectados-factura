@@ -14,14 +14,6 @@ const environmentLabels: Record<Environment, string> = {
   admin: 'Administración',
 };
 
-const environmentColors: Record<Environment, string> = {
-  compras: '#3b82f6',
-  ventas: '#10b981',
-  rendicion: '#f59e0b',
-  tesoreria: '#8b5cf6',
-  procesos: '#ef4444',
-  admin: '#6b7280',
-};
 
 const Logs: React.FC = () => {
   const { logs, isSystemAdmin } = useAuth();
