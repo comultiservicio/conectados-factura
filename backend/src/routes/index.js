@@ -5,8 +5,12 @@ const syncRoutes = require('./sync');
 const dashboardRoutes = require('./dashboard');
 const versionRoutes = require('./version');
 const debugRoutes = require('./debug');
+const healthRoutes = require('./health');
 
 const router = express.Router();
+
+// Health check endpoint
+router.use('/health', healthRoutes);
 
 // Auth routes
 router.use('/auth', authRoutes);

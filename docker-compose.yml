@@ -1,31 +1,52 @@
 # Docker Compose para Conectados Factura+
-# Despliegue completo: Frontend + MySQL
+# Despliegue completo: Frontend + Backend + MySQL
 
 version: '3.8'
 
 services:
-  # Servicio de la aplicación web (Node.js + TypeScript)
-  app:
+  # Servicio Frontend (Vite build)
+  frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: conectados-factura-app
+    container_name: conectados-factura-frontend
     ports:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - DB_HOST=db
-      - DB_PORT=3306
-      - DB_NAME=factura_db
-      - DB_USER=factura_user
-      - DB_PASSWORD=factura_password
+      - VITE_API_URL=http://localhost:3001
     depends_on:
-      - db
+      - backend
     networks:
       - factura-net
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Servicio Backend (Node.js API)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: conectados-factura-backend
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - JWT_SECRET=your-jwt-secret-change-in-production
+      - DB_PATH=/app/data/factura.db
+    volumes:
+      - backend_data:/app/data
+    networks:
+      - factura-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3001/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -56,9 +77,11 @@ services:
       retries: 3
       start_period: 60s
 
-# Volumen persistente para datos de MySQL
+# Volúmenes persistentes
 volumes:
   mysql_data:
+    driver: local
+  backend_data:
     driver: local
 
 # Red compartida entre servicios
