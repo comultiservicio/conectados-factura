@@ -1,0 +1,38 @@
+# Cloudflare Tunnel Configuration
+# For Conectados Factura+ Production
+
+tunnel: <TUNNEL_ID>
+credentials-file: /home/docker/.cloudflared/<TUNNEL_ID>.json
+
+# Logging
+logfile: /var/log/cloudflared.log
+log-level: info
+
+# Transport settings
+protocol: http2
+
+# Origin certificate (if using custom cert)
+# origin-ca-pool: /home/docker/.cloudflared/cert.pem
+
+# Ingress rules - order matters
+ingress:
+  # Frontend application
+  - hostname: chathannah.uk
+    service: http://localhost:3000
+    originRequest:
+      connectTimeout: 30s
+      tlsTimeout: 10s
+      tcpKeepAlive: 30s
+      noHappyEyeballs: false
+      disableChunkedEncoding: false
+      proxyType: ""
+
+  # Backend API (optional - if you want direct API access)
+  - hostname: api.chathannah.uk
+    service: http://localhost:3001
+    originRequest:
+      connectTimeout: 30s
+      tlsTimeout: 10s
+
+  # Default catch-all
+  - service: http_status:404
