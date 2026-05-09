@@ -6,6 +6,7 @@ const dashboardRoutes = require('./dashboard');
 const versionRoutes = require('./version');
 const debugRoutes = require('./debug');
 const healthRoutes = require('./health');
+const afipRoutes = require('./afip');
 
 const router = express.Router();
 
@@ -17,6 +18,9 @@ router.use('/auth', authRoutes);
 
 // Invoice routes with sequential numbering (Argentina compliant)
 router.use('/invoices', invoiceRoutes);
+
+// AFIP fiscal integration routes (WSFEv1)
+router.use('/afip', afipRoutes);
 
 // Dashboard stats
 router.use('/dashboard', dashboardRoutes);

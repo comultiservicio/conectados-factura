@@ -2,12 +2,15 @@ const dbConnection = require('../database/connection');
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
+const { AfipService } = require('./AfipService');
 
 class InvoiceService {
   constructor() {
     this.db = dbConnection.getInstance();
     this.queue = Promise.resolve(); // Cola profesional para secuencializar
     this.backupCounter = 0;
+    // Instancia AFIP para autorizaciones
+    this.afipService = new AfipService(dbConnection);
   }
 
   /**
@@ -348,6 +351,312 @@ class InvoiceService {
   getSequences() {
     const stmt = this.db.prepare('SELECT * FROM invoice_sequences ORDER BY type, pos_prefix');
     return stmt.all();
+  }
+
+  // ========================================================================
+  // INTEGRACIÓN AFIP - Métodos de autorización electrónica
+  // ========================================================================
+
+  /**
+   * Autorizar factura con AFIP (solicitar CAE)
+   * 
+   * @param {number} invoiceId - ID de la factura
+   * @returns {Promise<{success: boolean, cae?: string, error?: string}>}
+   */
+  async authorizeWithAFIP(invoiceId) {
+    const invoice = this.db.prepare('SELECT * FROM facturas WHERE id = ?').get(invoiceId);
+    
+    if (!invoice) {
+      throw new Error('Factura no encontrada');
+    }
+
+    if (invoice.afip_status === 'authorized') {
+      return { success: true, cae: invoice.afip_cae, alreadyAuthorized: true };
+    }
+
+    // Preparar datos para AFIP
+    const afipData = this._prepareAfipData(invoice);
+
+    try {
+      // Solicitar CAE
+      const result = await this.afipService.requestCAE(afipData);
+
+      // Actualizar factura con CAE
+      this.db.prepare(`
+        UPDATE facturas 
+        SET afip_status = 'authorized',
+            afip_cae = ?,
+            cae = ?,
+            afip_cae_due_date = ?,
+            cae_vencimiento = ?,
+            afip_response_date = datetime('now'),
+            updated_at = datetime('now')
+        WHERE id = ?
+      `).run(
+        result.cae,
+        result.cae,
+        result.caeDueDate,
+        result.caeDueDate,
+        invoiceId
+      );
+
+      // Si estaba en pendientes, eliminar
+      this.db.prepare('DELETE FROM afip_pending WHERE invoice_id = ?').run(invoiceId);
+
+      // Log del éxito
+      this.db.prepare(`
+        INSERT INTO afip_logs (invoice_id, event_type, message, details, created_at)
+        VALUES (?, 'SUCCESS', 'CAE obtenido', ?, datetime('now'))
+      `).run(invoiceId, JSON.stringify(result));
+
+      console.log(`[InvoiceService] ✅ Factura ${invoice.full_number} autorizada (CAE: ${result.cae})`);
+
+      return { 
+        success: true, 
+        cae: result.cae,
+        caeDueDate: result.caeDueDate,
+        invoiceNumber: result.invoiceNumber
+      };
+
+    } catch (error) {
+      // Manejar fallo
+      return this._handleAfipFailure(invoiceId, invoice, error);
+    }
+  }
+
+  /**
+   * Preparar datos de factura para envío a AFIP
+   * @private
+   */
+  _prepareAfipData(invoice) {
+    // Parsear items
+    const items = JSON.parse(invoice.items || '[]');
+    
+    // Determinar tipo de comprobante
+    const invoiceType = this._mapTipoComprobante(invoice.type, invoice.tipo_comprobante);
+    
+    // Determinar tipo de documento cliente
+    let docType = 99; // Consumidor final por defecto
+    let docNumber = 0;
+    
+    if (invoice.cliente_cuit && invoice.cliente_cuit.length === 11) {
+      docType = 80; // CUIT
+      docNumber = parseInt(invoice.cliente_cuit);
+    } else if (invoice.cliente_cuit && invoice.cliente_cuit.length === 8) {
+      docType = 96; // DNI
+      docNumber = parseInt(invoice.cliente_cuit);
+    }
+
+    return {
+      invoiceType,
+      pos: parseInt(invoice.pos_prefix) || 1,
+      number: invoice.number,
+      date: invoice.fecha,
+      customerDocType: docType,
+      customerDoc: docNumber,
+      total: invoice.total,
+      netAmount: invoice.subtotal || invoice.total,
+      vatAmount: invoice.iva || 0,
+      items
+    };
+  }
+
+  /**
+   * Mapear tipo interno a tipo AFIP
+   * @private
+   */
+  _mapTipoComprobante(type, tipoComprobante) {
+    // Primero por tipo_comprobante
+    if (tipoComprobante?.includes('factura_a')) return 'A';
+    if (tipoComprobante?.includes('factura_b')) return 'B';
+    if (tipoComprobante?.includes('factura_c')) return 'C';
+    if (tipoComprobante?.includes('nota_credito')) return 'NC_B';
+    if (tipoComprobante?.includes('nota_debito')) return 'ND_B';
+    
+    // Fallback por type
+    if (type === 'A') return 'A';
+    if (type === 'C') return 'C';
+    return 'B'; // Default Factura B
+  }
+
+  /**
+   * Manejar fallo de autorización AFIP
+   * @private
+   */
+  _handleAfipFailure(invoiceId, invoice, error) {
+    const isRetriable = this._isRetriableError(error);
+    
+    // Actualizar estado
+    const newStatus = isRetriable ? 'pending' : 'failed';
+    
+    this.db.prepare(`
+      UPDATE facturas 
+      SET afip_status = ?,
+          afip_error = ?,
+          afip_request_count = afip_request_count + 1,
+          updated_at = datetime('now')
+      WHERE id = ?
+    `).run(newStatus, error.message, invoiceId);
+
+    if (isRetriable) {
+      // Agregar a pendientes para retry automático
+      const existing = this.db.prepare('SELECT id FROM afip_pending WHERE invoice_id = ?').get(invoiceId);
+      
+      if (!existing) {
+        this.db.prepare(`
+          INSERT INTO afip_pending (invoice_id, attempts, last_error, error_code, created_at)
+          VALUES (?, 1, ?, ?, datetime('now'))
+        `).run(invoiceId, error.message, error.code || 'UNKNOWN');
+      } else {
+        this.db.prepare(`
+          UPDATE afip_pending 
+          SET attempts = attempts + 1,
+              last_error = ?,
+              error_code = ?,
+              last_attempt = datetime('now'),
+              next_retry = datetime('now', '+5 minutes')
+          WHERE invoice_id = ?
+        `).run(error.message, error.code || 'UNKNOWN', invoiceId);
+      }
+    }
+
+    // Log del error
+    this.db.prepare(`
+      INSERT INTO afip_logs (invoice_id, event_type, message, details, created_at)
+      VALUES (?, 'FAILED', ?, ?, datetime('now'))
+    `).run(invoiceId, error.message, JSON.stringify({ code: error.code, retriable: isRetriable }));
+
+    console.error(`[InvoiceService] ❌ Fallo AFIP factura ${invoice.full_number}: ${error.message}`);
+
+    return {
+      success: false,
+      error: error.message,
+      code: error.code,
+      retriable: isRetriable
+    };
+  }
+
+  /**
+   * Determinar si el error es retriable
+   * @private
+   */
+  _isRetriableError(error) {
+    // Errores que NO son retriables (lógica de negocio)
+    const nonRetriableCodes = [
+      'REJECTED',      // AFIP rechazó (datos inválidos)
+      'AFIP_ERROR',    // Error específico de AFIP
+      'INVALID_DATA'   // Datos inválidos
+    ];
+    
+    if (nonRetriableCodes.includes(error.code)) {
+      return false;
+    }
+    
+    // Errores de red/tiempo sí son retriables
+    return true;
+  }
+
+  /**
+   * Crear factura y autorizar con AFIP en un solo paso
+   * 
+   * @param {Object} invoiceData - Datos de la factura
+   * @param {boolean} skipAfip - Si true, no autorizar con AFIP
+   * @returns {Promise<Object>} Factura creada con estado AFIP
+   */
+  async createInvoiceWithAFIP(invoiceData, skipAfip = false) {
+    // 1. Crear factura local
+    const invoice = await this.createInvoice(invoiceData);
+    
+    if (skipAfip) {
+      // Marcar como manual (no se autorizará automáticamente)
+      this.db.prepare(`
+        UPDATE facturas SET afip_status = 'manual' WHERE id = ?
+      `).run(invoice.id);
+      
+      return { ...invoice, afipStatus: 'manual' };
+    }
+
+    // 2. Intentar autorizar con AFIP
+    try {
+      const afipResult = await this.authorizeWithAFIP(invoice.id);
+      
+      return {
+        ...invoice,
+        afipStatus: afipResult.success ? 'authorized' : 'pending',
+        cae: afipResult.cae,
+        afipError: afipResult.error
+      };
+      
+    } catch (error) {
+      // Si falla, queda en pending para retry automático
+      return {
+        ...invoice,
+        afipStatus: 'pending',
+        afipError: error.message
+      };
+    }
+  }
+
+  /**
+   * Obtener facturas pendientes de autorización AFIP
+   */
+  getPendingAFIPInvoices() {
+    const stmt = this.db.prepare(`
+      SELECT f.*, p.attempts, p.last_attempt, p.next_retry, p.last_error
+      FROM facturas f
+      JOIN afip_pending p ON f.id = p.invoice_id
+      WHERE f.afip_status = 'pending'
+      ORDER BY p.next_retry ASC, f.created_at ASC
+    `);
+    
+    const invoices = stmt.all();
+    
+    return invoices.map(inv => ({
+      ...inv,
+      items: JSON.parse(inv.items || '[]')
+    }));
+  }
+
+  /**
+   * Obtener estadísticas de AFIP
+   */
+  getAFIPStats() {
+    const stats = this.db.prepare(`
+      SELECT 
+        afip_status,
+        COUNT(*) as count,
+        SUM(total) as total_amount
+      FROM facturas
+      WHERE afip_status IS NOT NULL
+      GROUP BY afip_status
+    `).all();
+
+    const pendingDetails = this.db.prepare(`
+      SELECT 
+        COUNT(*) as total_pending,
+        SUM(CASE WHEN next_retry <= datetime('now') THEN 1 ELSE 0 END) as ready_to_retry
+      FROM afip_pending
+    `).get();
+
+    return {
+      byStatus: stats,
+      pending: pendingDetails,
+      lastCheck: new Date().toISOString()
+    };
+  }
+
+  /**
+   * Verificar estado de servidores AFIP
+   */
+  async checkAfipServers() {
+    return await this.afipService.checkServerStatus();
+  }
+
+  /**
+   * Obtener último número autorizado en AFIP para un punto de venta
+   */
+  async getLastAuthorizedNumber(pos, type) {
+    return await this.afipService.getLastInvoiceNumber(pos, type);
   }
 }
 

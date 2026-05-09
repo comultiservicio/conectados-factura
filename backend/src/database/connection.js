@@ -183,7 +183,16 @@ class DatabaseConnection {
     this.ensureColumn('facturas', 'cae_vencimiento', 'TEXT');
     this.ensureColumn('facturas', 'client_id', 'INTEGER');
 
+    // Campos AFIP para integración WSFEv1
+    this.ensureColumn('facturas', 'afip_status', "TEXT DEFAULT 'pending' CHECK(afip_status IN ('pending', 'authorized', 'failed', 'manual'))");
+    this.ensureColumn('facturas', 'afip_cae', 'TEXT');
+    this.ensureColumn('facturas', 'afip_cae_due_date', 'DATE');
+    this.ensureColumn('facturas', 'afip_response_date', 'DATETIME');
+    this.ensureColumn('facturas', 'afip_error', 'TEXT');
+    this.ensureColumn('facturas', 'afip_request_count', 'INTEGER DEFAULT 0');
+
     this.seedRoles();
+    this.runMigrations();
   }
 
   ensureColumn(tableName, columnName, definition) {
@@ -191,6 +200,57 @@ class DatabaseConnection {
     const hasColumn = columns.some((column) => column.name === columnName);
     if (!hasColumn) {
       this.db.exec(`ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${definition}`);
+    }
+  }
+
+  /**
+   * Ejecutar migraciones SQL pendientes
+   * Sistema simple de migraciones basado en archivos numerados
+   */
+  runMigrations() {
+    const fs = require('fs');
+    const path = require('path');
+    
+    // Crear tabla de migraciones si no existe
+    this.db.exec(`
+      CREATE TABLE IF NOT EXISTS migrations (
+        id INTEGER PRIMARY KEY,
+        filename TEXT UNIQUE,
+        executed_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    const migrationsDir = path.join(__dirname, 'migrations');
+    if (!fs.existsSync(migrationsDir)) {
+      console.log('[DB] No migrations directory found');
+      return;
+    }
+
+    // Obtener migraciones ya ejecutadas
+    const executed = this.db.prepare('SELECT filename FROM migrations').all().map(r => r.filename);
+    
+    // Leer archivos de migración
+    const files = fs.readdirSync(migrationsDir)
+      .filter(f => f.endsWith('.sql'))
+      .sort();
+
+    for (const file of files) {
+      if (executed.includes(file)) continue;
+
+      try {
+        const sql = fs.readFileSync(path.join(migrationsDir, file), 'utf8');
+        
+        // Ejecutar migración en transacción
+        this.db.transaction(() => {
+          this.db.exec(sql);
+          this.db.prepare('INSERT INTO migrations (filename) VALUES (?)').run(file);
+        })();
+
+        console.log(`✅ Migration applied: ${file}`);
+      } catch (error) {
+        console.error(`❌ Migration failed: ${file}`, error.message);
+        // No lanzar error para no bloquear arranque
+      }
     }
   }
 
