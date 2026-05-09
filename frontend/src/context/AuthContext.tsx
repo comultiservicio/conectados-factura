@@ -1,8 +1,37 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { authService, AuthUser } from '../services/authService';
+import { 
+  UserRole as UnifiedRole, 
+  RoleLabels, 
+  RoleMigrationMap,
+  hasPermission,
+  isValidRole,
+  migrateRole
+} from '../../../shared/types/roles';
+
+/**
+ * SISTEMA DE ROLES UNIFICADO v2.0
+ * 
+ * 5 roles principales:
+ * - viewer: Solo lectura
+ * - driver: Chofer (ventas móvil, OCR, sync offline)
+ * - cashier: Cajero (ventas, stock consulta, cierre de caja)
+ * - manager: Gerente (reportes, análisis, no modifica config)
+ * - admin: Administrador (acceso total)
+ * 
+ * Los roles antiguos se migran automáticamente mediante RoleMigrationMap.
+ */
 
 export type ImplementationPhase = 'fase1' | 'fase2' | 'fase3';
-export type UserRole =
+
+/** 
+ * Nuevo tipo de rol unificado (5 roles)
+ * @deprecated UserRoleLegacy se mantiene para compatibilidad backward
+ */
+export type UserRole = UnifiedRole;
+
+/** Legacy roles para backward compatibility */
+export type UserRoleLegacy =
   | 'vendedor'
   | 'chofer'
   | 'contador'
@@ -13,6 +42,7 @@ export type UserRole =
   | 'tecnico'
   | 'admin_sistema'
   | 'admin_cuenta';
+
 export type Environment = 'ventas' | 'rendicion' | 'tesoreria' | 'compras' | 'procesos' | 'admin';
 
 export interface EnvironmentVisibility {
@@ -46,28 +76,78 @@ interface LogEntry {
   timestamp: string;
 }
 
+/**
+ * Contexto de Autenticación Unificado
+ * 
+ * Nuevas propiedades de rol (5 roles unificados):
+ * - isViewer, isDriver, isCashier, isManager, isAdmin
+ * 
+ * Legacy properties mantenidas para backward compatibility:
+ * - isVendedor (migrado a isCashier)
+ * - isChofer (migrado a isDriver)
+ * - etc.
+ */
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
-  isVendedor: boolean;
-  isChofer: boolean;
-  isContador: boolean;
-  isTesorero: boolean;
-  isEncargadoCompras: boolean;
-  isAdminCuenta: boolean;
-  isAdminSistema: boolean;
-  isSystemAdmin: boolean;
+  
+  // === NUEVO SISTEMA DE ROLES (5 roles) ===
+  role: UnifiedRole | null;
+  roleLabel: string;
+  isViewer: boolean;
+  isDriver: boolean;
+  isCashier: boolean;
+  isManager: boolean;
+  isAdmin: boolean;
+  
+  /**
+   * Verifica permiso unificado (action + resource)
+   * @example hasPermission('create', 'invoices')
+   */
   hasPermission: (env: Environment) => boolean;
+  hasUnifiedPermission: (action: import('../../../shared/types/roles').Action, resource: import('../../../shared/types/roles').Resource) => boolean;
+  
+  /**
+   * Requiere rol mínimo en jerarquía
+   */
+  hasMinimumRole: (requiredRole: UnifiedRole) => boolean;
+  
+  // === LEGACY (mantenido para compatibilidad) ===
+  /** @deprecated Usar isCashier */
+  isVendedor: boolean;
+  /** @deprecated Usar isDriver */
+  isChofer: boolean;
+  /** @deprecated Usar isManager */
+  isContador: boolean;
+  /** @deprecated Usar isCashier */
+  isTesorero: boolean;
+  /** @deprecated Usar isManager */
+  isEncargadoCompras: boolean;
+  /** @deprecated Usar isManager */
+  isAdminCuenta: boolean;
+  /** @deprecated Usar isAdmin */
+  isAdminSistema: boolean;
+  /** @deprecated Usar isAdmin */
+  isSystemAdmin: boolean;
+  
   canAccessEnvironment: (env: Environment) => boolean;
   getEnvironmentVisibility: (env: Environment) => EnvironmentVisibility;
   logs: LogEntry[];
   addLog: (environment: Environment, action: string, details?: string) => void;
+  
+  /**
+   * Migrar rol legacy a nuevo sistema
+   */
+  migrateUserRole: (legacyRole: UserRoleLegacy) => UnifiedRole;
 }
 
-const ROLE_PERMISSIONS: Record<UserRole, UserPermissions> = {
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+/** Mapeo de roles legacy a permisos de entorno (backward compatibility) */
+const LEGACY_ROLE_PERMISSIONS: Record<UserRoleLegacy, UserPermissions> = {
   vendedor: {
     ventas: { enabled: true, visible: true, phase: 'fase1' },
     rendicion: { enabled: false, visible: true, phase: 'fase1' },
@@ -160,8 +240,6 @@ const ROLE_PERMISSIONS: Record<UserRole, UserPermissions> = {
   },
 };
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -180,11 +258,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       try {
         const me = await authService.getMe();
-        const role = (me.role as UserRole) || 'vendedor';
+        // Migrar rol legacy a nuevo sistema unificado
+        const rawRole = me.role || 'vendedor';
+        const unifiedRole = migrateRole(rawRole);
+        
+        // Log de migración para debugging
+        if (rawRole !== unifiedRole) {
+          console.log(`[Auth] Rol migrado: ${rawRole} → ${unifiedRole}`);
+        }
+        
         setUser({
           ...me,
-          role,
-          permissions: ROLE_PERMISSIONS[role] || ROLE_PERMISSIONS.vendedor,
+          role: unifiedRole,
+          permissions: LEGACY_ROLE_PERMISSIONS[rawRole as UserRoleLegacy] || LEGACY_ROLE_PERMISSIONS.vendedor,
         });
       } catch {
         authService.logout();
@@ -203,11 +289,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = useCallback(async (email: string, password: string) => {
     const data = await authService.login(email, password);
-    const role = (data.user.role as UserRole) || 'vendedor';
+    // Migrar rol legacy a nuevo sistema unificado
+    const rawRole = data.user.role || 'vendedor';
+    const unifiedRole = migrateRole(rawRole);
+    
     setUser({
       ...data.user,
-      role,
-      permissions: ROLE_PERMISSIONS[role] || ROLE_PERMISSIONS.vendedor,
+      role: unifiedRole,
+      permissions: LEGACY_ROLE_PERMISSIONS[rawRole as UserRoleLegacy] || LEGACY_ROLE_PERMISSIONS.vendedor,
     });
   }, []);
 
@@ -257,25 +346,67 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     [user]
   );
 
+  // === NUEVO SISTEMA DE ROLES: Callbacks ===
+  const unifiedRole = (user?.role as UnifiedRole) || null;
+  
+  const hasUnifiedPermission = useCallback(
+    (action: import('../../../shared/types/roles').Action, resource: import('../../../shared/types/roles').Resource): boolean => {
+      if (!unifiedRole) return false;
+      return hasPermission(unifiedRole, action, resource);
+    },
+    [unifiedRole]
+  );
+  
+  const hasMinimumRole = useCallback(
+    (requiredRole: UnifiedRole): boolean => {
+      if (!unifiedRole) return false;
+      const { RoleHierarchy } = require('../../../shared/types/roles');
+      return RoleHierarchy[unifiedRole] >= RoleHierarchy[requiredRole];
+    },
+    [unifiedRole]
+  );
+  
+  const migrateUserRole = useCallback(
+    (legacyRole: UserRoleLegacy): UnifiedRole => {
+      return migrateRole(legacyRole);
+    },
+    []
+  );
+
   const value: AuthContextType = {
     user,
     isAuthenticated: !!user,
     isLoading,
     login,
     logout,
-    isVendedor: user?.role === 'vendedor',
-    isChofer: user?.role === 'chofer',
-    isContador: user?.role === 'contador',
-    isTesorero: user?.role === 'tesorero',
-    isEncargadoCompras: user?.role === 'compras',
-    isAdminCuenta: user?.role === 'admin_cuenta' || user?.role === 'admin',
-    isAdminSistema: user?.role === 'admin_sistema' || user?.role === 'superadmin',
-    isSystemAdmin: user?.role === 'admin_sistema' || user?.role === 'superadmin',
+    
+    // === NUEVO SISTEMA DE ROLES (5 roles) ===
+    role: unifiedRole,
+    roleLabel: unifiedRole ? RoleLabels[unifiedRole] : '',
+    isViewer: unifiedRole === 'viewer',
+    isDriver: unifiedRole === 'driver',
+    isCashier: unifiedRole === 'cashier',
+    isManager: unifiedRole === 'manager',
+    isAdmin: unifiedRole === 'admin',
+    hasUnifiedPermission,
+    hasMinimumRole,
+    
+    // === LEGACY (backward compatibility) ===
+    // Legacy checks usando el rol migrado para compatibilidad
+    isVendedor: unifiedRole === 'cashier',
+    isChofer: unifiedRole === 'driver',
+    isContador: unifiedRole === 'manager',
+    isTesorero: unifiedRole === 'cashier',
+    isEncargadoCompras: unifiedRole === 'manager',
+    isAdminCuenta: unifiedRole === 'manager' || unifiedRole === 'admin',
+    isAdminSistema: unifiedRole === 'admin',
+    isSystemAdmin: unifiedRole === 'admin',
     hasPermission,
     canAccessEnvironment,
     getEnvironmentVisibility,
     logs,
     addLog,
+    migrateUserRole,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

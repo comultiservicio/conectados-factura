@@ -37,7 +37,7 @@ class DatabaseConnection {
         name TEXT NOT NULL,
         phone TEXT,
         avatar TEXT,
-        role TEXT NOT NULL DEFAULT 'vendedor',
+        role TEXT NOT NULL DEFAULT 'cashier' CHECK(role IN ('viewer', 'driver', 'cashier', 'manager', 'admin')),
         active INTEGER NOT NULL DEFAULT 1,
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -195,13 +195,13 @@ class DatabaseConnection {
   }
 
   seedRoles() {
+    // Nuevo sistema de roles unificado (5 roles)
     const roles = [
-      { name: 'superadmin', description: 'Control total del sistema', permissions: '{"all":true}' },
-      { name: 'admin', description: 'Administracion general', permissions: '{"manage_users":true,"manage_settings":true}' },
-      { name: 'contador', description: 'Gestion contable y reportes', permissions: '{"invoices":true,"reports":true}' },
-      { name: 'vendedor', description: 'Carga y gestion de ventas', permissions: '{"sales":true}' },
-      { name: 'chofer', description: 'Registro logistico y entregas', permissions: '{"deliveries":true}' },
-      { name: 'tecnico', description: 'Soporte tecnico y mantenimiento', permissions: '{"maintenance":true}' }
+      { name: 'admin', description: 'Acceso total, configuracion, usuarios', permissions: '{"all":true}' },
+      { name: 'manager', description: 'Reportes, analisis, no modifica config', permissions: '{"reports":true,"analytics":true,"read_all":true}' },
+      { name: 'cashier', description: 'Ventas, stock consulta, cierre de caja', permissions: '{"sales":true,"stock_read":true,"cash_register":true}' },
+      { name: 'driver', description: 'Ventas movil, OCR, sync offline', permissions: '{"mobile_sales":true,"ocr":true,"offline_sync":true}' },
+      { name: 'viewer', description: 'Solo lectura', permissions: '{"read_only":true}' }
     ];
 
     const insertRole = this.db.prepare(`
@@ -239,8 +239,9 @@ class DatabaseConnection {
       this.db.prepare(`
         INSERT INTO users (email, password_hash, name, role, active, created_at, updated_at)
         VALUES (?, ?, ?, ?, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-      `).run(defaultEmail, passwordHash, 'Administrador', 'superadmin');
+      `).run(defaultEmail, passwordHash, 'Administrador', 'admin');
       console.log('✅ Default admin user created: admin@local.com / admin123');
+      console.log('   Role: admin (sistema unificado de 5 roles)');
     }
   }
 
