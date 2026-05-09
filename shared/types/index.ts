@@ -1,9 +1,11 @@
 // Shared types used across the entire system
+// Roles are now defined in roles.ts
+export * from './roles';
 
 export interface DecodedToken {
   sub: string;
   email: string;
-  role: 'admin' | 'user' | 'auditor';
+  role: import('./roles').UserRole;
 }
 
 export interface User {
@@ -11,7 +13,8 @@ export interface User {
   email: string;
   firstName: string;
   lastName: string;
-  role: 'admin' | 'driver' | 'customer' | 'viewer';
+  /** @deprecated Use role from roles.ts - maintained for backward compatibility */
+  role: import('./roles').UserRole;
   companyId: string;
   isActive: boolean;
   lastLogin?: string;
