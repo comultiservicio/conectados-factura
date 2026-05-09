@@ -4,5 +4,8 @@
     "@types/node": "^25.6.0",
     "ollama-commit": "^0.5.1",
     "typescript": "^6.0.3"
+  },
+  "devDependencies": {
+    "axios": "^1.16.0"
   }
 }

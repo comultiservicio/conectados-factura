@@ -49,11 +49,30 @@ copy .env.example .env
 node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 # Copiar output a JWT_SECRET en .env
 
-# 5. Iniciar backend
-cd backend
-npm start
+### Paso 4: Verificar instalación con test de integración
+```bash
+# Terminal 1 - Backend
+cd backend && npm start
 
-# 6. En otra terminal, iniciar frontend
+# Terminal 2 - Ejecutar test de integración (8 tests)
+cd scripts && node test-production.js
+```
+
+**Esperado:**
+```
+🧪 Test de Integración - Conectados Factura+ v2.0
+✅ Health: ok
+✅ Login: admin
+✅ Producto creado: ID 1
+✅ Cliente creado: ID 1
+✅ Caja abierta: ID 1
+✅ Factura creada: N° 0001-00000001
+✅ Integridad: HEALTHY
+✅ Caja cerrada. Diferencia: $0.00
+🎉 TODOS LOS TESTS PASARON (8/8)
+```
+
+### Paso 5: Iniciar frontend
 cd frontend
 npm run dev
 ```
