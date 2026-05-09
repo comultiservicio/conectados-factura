@@ -8,6 +8,7 @@ class InvoiceService {
   constructor() {
     this.db = dbConnection.getInstance();
     this.queue = Promise.resolve(); // Cola profesional para secuencializar
+    this.isProcessing = false; // ERROR 2 FIX: Track processing state
     this.backupCounter = 0;
     // Instancia AFIP para autorizaciones
     this.afipService = new AfipService(dbConnection);
@@ -16,13 +17,26 @@ class InvoiceService {
   /**
    * QUEUE SYSTEM: Secuencialización profesional de facturas
    * CRÍTICO para producción - nunca ejecuta 2 al mismo tiempo
-   * Mantiene orden, no tira errores, más robusto que mutex flag
+   * 
+   * ERROR 2 FIX: Patrón "queue with recovery" - el .catch() devuelve 
+   * Promise.resolve() para que la cola continúe funcionando incluso
+   * después de errores. Sin esto, un error bloquea todas las tareas futuras.
    */
   enqueue(task) {
-    this.queue = this.queue.then(() => task()).catch((err) => {
-      console.error('[InvoiceQueue] Task failed:', err);
-      throw err;
-    });
+    this.isProcessing = true;
+    
+    this.queue = this.queue
+      .then(() => task())
+      .catch((err) => {
+        // Log pero NO propagar - la cola debe continuar
+        console.error('[InvoiceQueue] Task failed (queue continues):', err.message);
+        // Devolver resolved para que la cola no se bloquee
+        return Promise.resolve();
+      })
+      .finally(() => {
+        this.isProcessing = false;
+      });
+      
     return this.queue;
   }
 
@@ -62,6 +76,20 @@ class InvoiceService {
 
       // Copiar archivo (ahora consistente gracias a VACUUM)
       fs.copyFileSync(dbPath, backupPath);
+      
+      // ERROR 7 FIX: Verificar integridad del backup
+      const Database = require('better-sqlite3');
+      const backupDb = new Database(backupPath, { readonly: true });
+      const check = backupDb.prepare('PRAGMA integrity_check').get();
+      backupDb.close();
+      
+      if (check.integrity_check !== 'ok') {
+        // Eliminar backup corrupto
+        fs.unlinkSync(backupPath);
+        throw new Error(`Backup integrity check failed: ${check.integrity_check}`);
+      }
+      
+      console.log('[Backup] ✅ Integrity verified');
       
       // Mantener solo últimos 10 backups
       const files = fs.readdirSync(backupDir)
