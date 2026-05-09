@@ -7,6 +7,7 @@ const versionRoutes = require('./version');
 const debugRoutes = require('./debug');
 const healthRoutes = require('./health');
 const afipRoutes = require('./afip');
+const cashRegisterRoutes = require('./cashRegister');
 
 const router = express.Router();
 
@@ -21,6 +22,9 @@ router.use('/invoices', invoiceRoutes);
 
 // AFIP fiscal integration routes (WSFEv1)
 router.use('/afip', afipRoutes);
+
+// Cash Register routes (cierre de caja)
+router.use('/cash-register', cashRegisterRoutes);
 
 // Dashboard stats
 router.use('/dashboard', dashboardRoutes);
