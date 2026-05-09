@@ -8,6 +8,7 @@ const debugRoutes = require('./debug');
 const healthRoutes = require('./health');
 const afipRoutes = require('./afip');
 const cashRegisterRoutes = require('./cashRegister');
+const printerRoutes = require('./printer');
 
 const router = express.Router();
 
@@ -25,6 +26,9 @@ router.use('/afip', afipRoutes);
 
 // Cash Register routes (cierre de caja)
 router.use('/cash-register', cashRegisterRoutes);
+
+// Printer routes (tickets POS)
+router.use('/printer', printerRoutes);
 
 // Dashboard stats
 router.use('/dashboard', dashboardRoutes);
