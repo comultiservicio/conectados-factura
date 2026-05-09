@@ -8,8 +8,8 @@
   },
   "files": [
     "dist/**/*",
-    "main.js",
-    "preload.js",
+    "main.cjs",
+    "preload.cjs",
     "assets/**/*"
   ],
   "extraResources": [
@@ -31,8 +31,8 @@
         "arch": ["x64"]
       }
     ],
-    "icon": "assets/icon.ico",
-    "publisherName": "Conectados"
+    "icon": "assets/icon.png",
+    "signAndEditExecutable": false
   },
   "nsis": {
     "oneClick": false,
@@ -54,7 +54,7 @@
         "arch": ["x64", "arm64"]
       }
     ],
-    "icon": "assets/icon.icns",
+    "icon": "assets/icons/mac/icon_512x512.png",
     "category": "public.app-category.business",
     "hardenedRuntime": true,
     "gatekeeperAssess": false,

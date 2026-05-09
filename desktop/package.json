@@ -1,0 +1,82 @@
+{
+  "name": "conectados-factura-desktop",
+  "version": "1.0.0",
+  "description": "Sistema de Facturación Argentina - Desktop App",
+  "main": "main.js",
+  "author": "Conectados Multiservicio",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dev": "NODE_ENV=development electron .",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win",
+    "dist": "npm run build:win",
+    "pack": "electron-builder --dir",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1"
+  },
+  "dependencies": {
+    "electron-updater": "^6.1.7"
+  },
+  "build": {
+    "appId": "com.conectados.factura",
+    "productName": "Conectados Factura+",
+    "copyright": "© 2026 Conectados Multiservicio",
+    "directories": {
+      "output": "dist",
+      "buildResources": "assets"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "assets/**/*",
+      "src/**/*",
+      "../backend/**/*",
+      "!node_modules/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "../backend",
+        "to": "backend",
+        "filter": ["**/*", "!node_modules"]
+      },
+      {
+        "from": "../database",
+        "to": "database",
+        "filter": ["**/*"]
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        },
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "assets/icon.ico",
+      "publisherName": "Conectados Multiservicio"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Conectados Factura+",
+      "include": "installer.nsh"
+    },
+    "publish": {
+      "provider": "generic",
+      "url": "https://updates.conectados-factura.com"
+    }
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

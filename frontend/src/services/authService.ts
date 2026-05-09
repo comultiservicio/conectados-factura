@@ -1,81 +1,61 @@
 import api from './api';
 import { z } from 'zod';
 
-// Validation schemas
 export const loginSchema = z.object({
-  email: z.string().email('Email inválido'),
-  password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
+  email: z.string().email('Email invalido'),
+  password: z.string().min(6, 'La contrasena debe tener al menos 6 caracteres'),
 });
 
 export const registerSchema = z.object({
-  email: z.string().email('Email inválido'),
-  password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
+  email: z.string().email('Email invalido'),
+  password: z.string().min(6, 'La contrasena debe tener al menos 6 caracteres'),
   name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
-  role: z.enum(['admin', 'user']).default('user'),
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;
 
-export interface AuthResponse {
-  accessToken: string;
-  refreshToken: string;
-  user: {
-    id: string;
-    email: string;
-    name: string;
-    role: 'admin' | 'user';
-  };
+export interface AuthUser {
+  id: number;
+  email: string;
+  name: string;
+  role: string;
 }
 
-export interface RefreshTokenResponse {
-  accessToken: string;
-  refreshToken: string;
+export interface AuthResponse {
+  token: string;
+  expiresIn: string;
+  user: AuthUser;
 }
 
 class AuthService {
-  async login(credentials: LoginInput): Promise<AuthResponse> {
-    const response = await api.post<AuthResponse>('/auth', credentials);
-    
-    // Store tokens
-    localStorage.setItem('accessToken', response.data.accessToken);
-    localStorage.setItem('refreshToken', response.data.refreshToken);
+  async login(email: string, password: string): Promise<AuthResponse> {
+    const response = await api.post<AuthResponse>('/api/auth/login', { email, password });
+    localStorage.setItem('auth_token', response.data.token);
     localStorage.setItem('user', JSON.stringify(response.data.user));
-    
     return response.data;
   }
 
-  async register(data: RegisterInput): Promise<AuthResponse> {
-    const response = await api.post<AuthResponse>('/auth/register', data);
-    
-    // Store tokens
-    localStorage.setItem('accessToken', response.data.accessToken);
-    localStorage.setItem('refreshToken', response.data.refreshToken);
+  async register(email: string, password: string, name: string): Promise<AuthResponse> {
+    const response = await api.post<AuthResponse>('/api/auth/register', { email, password, name });
+    localStorage.setItem('auth_token', response.data.token);
     localStorage.setItem('user', JSON.stringify(response.data.user));
-    
     return response.data;
   }
 
-  async refreshToken(refreshToken: string): Promise<RefreshTokenResponse> {
-    const response = await api.post<RefreshTokenResponse>('/auth/refresh', {
-      refreshToken,
-    });
-    
-    // Update tokens
-    localStorage.setItem('accessToken', response.data.accessToken);
-    localStorage.setItem('refreshToken', response.data.refreshToken);
-    
-    return response.data;
+  async getMe(): Promise<AuthUser> {
+    const response = await api.get<{ user: AuthUser }>('/api/auth/me');
+    localStorage.setItem('user', JSON.stringify(response.data.user));
+    return response.data.user;
   }
 
   logout(): void {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('auth_token');
     localStorage.removeItem('user');
     window.location.href = '/login';
   }
 
-  getCurrentUser() {
+  getCurrentUser(): AuthUser | null {
     const userStr = localStorage.getItem('user');
     if (!userStr) return null;
     try {
@@ -86,12 +66,12 @@ class AuthService {
   }
 
   isAuthenticated(): boolean {
-    return !!localStorage.getItem('accessToken');
+    return !!localStorage.getItem('auth_token');
   }
 
   isAdmin(): boolean {
     const user = this.getCurrentUser();
-    return user?.role === 'admin';
+    return user?.role === 'admin' || user?.role === 'superadmin' || user?.role === 'admin_sistema';
   }
 }
 

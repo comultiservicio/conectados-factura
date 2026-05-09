@@ -1,0 +1,97 @@
+# Docker Compose para Conectados Factura+
+# Despliegue completo: Frontend + Backend + MySQL
+
+version: '3.8'
+
+services:
+  # Servicio Frontend (Vite build)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: conectados-factura-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - VITE_API_URL=http://backend:3001
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - factura-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Servicio Backend (Node.js API)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: conectados-factura-backend
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - JWT_SECRET=your-jwt-secret-change-in-production
+      - DB_PATH=/app/data/factura.db
+    volumes:
+      - backend_data:/app/data
+    networks:
+      - factura-net
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3001/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Servicio de base de datos MySQL 8.0
+  db:
+    image: mysql:8.0
+    container_name: conectados-factura-db
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_password
+      - MYSQL_DATABASE=factura_db
+      - MYSQL_USER=factura_user
+      - MYSQL_PASSWORD=factura_password
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/init:/docker-entrypoint-initdb.d
+    networks:
+      - factura-net
+    restart: unless-stopped
+    command: --default-authentication-plugin=mysql_native_password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_password"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+# Volúmenes persistentes
+volumes:
+  mysql_data:
+    driver: local
+  backend_data:
+    driver: local
+
+# Red compartida entre servicios
+networks:
+  factura-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
